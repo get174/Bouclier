@@ -35,6 +35,7 @@ export interface Resident {
   id: string;
   firstName: string;
   lastName: string;
+  block: string;
   apartment: string;
   phone: string;
   email: string;

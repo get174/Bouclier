@@ -1,4 +1,4 @@
-import { Edit2, Eye, Filter, Home, Mail, Phone, Plus, Search, UserCheck, UserX } from 'lucide-react-native';
+import { Filter, Home, Plus, Search, UserCheck, UserX } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import type { Resident } from '../types';
@@ -8,6 +8,7 @@ const mockResidents: Resident[] = [
     id: '1',
     firstName: 'Marie',
     lastName: 'Dubois',
+    block: 'A',
     apartment: 'Apt 304',
     phone: '+33 6 11 22 33 44',
     email: 'marie.dubois@email.com',
@@ -18,6 +19,7 @@ const mockResidents: Resident[] = [
     id: '2',
     firstName: 'Jean',
     lastName: 'Moreau',
+    block: 'B',
     apartment: 'Apt 201',
     phone: '+33 6 55 66 77 88',
     email: 'jean.moreau@email.com',
@@ -28,6 +30,7 @@ const mockResidents: Resident[] = [
     id: '3',
     firstName: 'Paul',
     lastName: 'Bernard',
+    block: 'A',
     apartment: 'Apt 108',
     phone: '+33 6 99 88 77 66',
     email: 'paul.bernard@email.com',
@@ -38,6 +41,7 @@ const mockResidents: Resident[] = [
     id: '4',
     firstName: 'Anne',
     lastName: 'Petit',
+    block: 'C',
     apartment: 'Apt 405',
     phone: '+33 6 44 33 22 11',
     email: 'anne.petit@email.com',
@@ -49,21 +53,17 @@ const mockResidents: Resident[] = [
 const pendingApprovals = [
   {
     id: '1',
-    visitorName: 'Sophie Martin',
     residentName: 'Marie Dubois',
+    block: 'A',
     apartment: 'Apt 304',
-    visitDate: '2024-01-15',
-    visitTime: '14:30',
-    purpose: 'Visite familiale',
+    joinDate: '2023-01-15',
   },
   {
     id: '2',
-    visitorName: 'Lucas Dubois',
     residentName: 'Jean Moreau',
+    block: 'B',
     apartment: 'Apt 201',
-    visitDate: '2024-01-16',
-    visitTime: '16:00',
-    purpose: 'Travaux',
+    joinDate: '2023-03-20',
   },
 ];
 
@@ -72,6 +72,7 @@ export default function Residents() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'name' | 'apartment' | 'joinDate'>('name');
+  const [selectedResident, setSelectedResident] = useState<Resident | null>(null);
 
   const filteredResidents = residents
     .filter(resident => {
@@ -104,7 +105,10 @@ export default function Residents() {
   };
 
   const renderResidentItem = ({ item }: { item: Resident }) => (
-    <View style={styles.residentItem}>
+    <TouchableOpacity
+      style={styles.residentItem}
+      onPress={() => setSelectedResident(item)}
+    >
       <View style={styles.residentInfo}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>
@@ -121,15 +125,7 @@ export default function Residents() {
       <View style={styles.residentDetails}>
         <View style={styles.detailRow}>
           <Home width={16} height={16} color="#6b7280" />
-          <Text style={styles.detailText}>{item.apartment}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Phone width={16} height={16} color="#6b7280" />
-          <Text style={styles.detailText}>{item.phone}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Mail width={16} height={16} color="#6b7280" />
-          <Text style={styles.detailText}>{item.email}</Text>
+          <Text style={styles.detailText}>Bloc {item.block} - {item.apartment}</Text>
         </View>
       </View>
 
@@ -147,21 +143,8 @@ export default function Residents() {
             {item.status === 'active' ? 'Actif' : 'Inactif'}
           </Text>
         </View>
-
-        <Text style={styles.joinDate}>
-          {new Date(item.joinDate).toLocaleDateString('fr-FR')}
-        </Text>
-
-        <View style={styles.actions}>
-          <TouchableOpacity style={styles.actionButton}>
-            <Eye width={16} height={16} color="#2563eb" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Edit2 width={16} height={16} color="#059669" />
-          </TouchableOpacity>
-        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const renderHeader = () => (
@@ -173,10 +156,7 @@ export default function Residents() {
           <Text style={styles.headerSubtitle}>Gestion des résidents de la résidence</Text>
         </View>
 
-        <TouchableOpacity style={styles.addButton}>
-          <Plus width={16} height={16} color="white" />
-          <Text style={styles.addButtonText}>Ajouter résident</Text>
-        </TouchableOpacity>
+        
       </View>
 
       {/* Pending Approvals */}
@@ -192,22 +172,22 @@ export default function Residents() {
             <View key={approval.id} style={styles.pendingItem}>
               <View style={styles.pendingInfo}>
                 <View style={styles.pendingRow}>
-                  <Text style={styles.pendingName}>{approval.visitorName}</Text>
-                  <Text style={styles.pendingLabel}>Visiteur</Text>
+                  <Text style={styles.pendingName}>{approval.residentName}</Text>
+                  <Text style={styles.pendingLabel}>Nom complet</Text>
                 </View>
                 <View style={styles.pendingRow}>
-                  <Text style={styles.pendingName}>{approval.residentName}</Text>
-                  <Text style={styles.pendingLabel}>{approval.apartment}</Text>
+                  <Text style={styles.pendingName}>Bloc {approval.block}</Text>
+                  <Text style={styles.pendingLabel}>Numéro du bloc</Text>
+                </View>
+                <View style={styles.pendingRow}>
+                  <Text style={styles.pendingName}>{approval.apartment}</Text>
+                  <Text style={styles.pendingLabel}>Numéro d&apos;appartement</Text>
                 </View>
                 <View style={styles.pendingRow}>
                   <Text style={styles.pendingName}>
-                    {new Date(approval.visitDate).toLocaleDateString('fr-FR')} à {approval.visitTime}
+                    {new Date(approval.joinDate).toLocaleDateString('fr-FR')}
                   </Text>
-                  <Text style={styles.pendingLabel}>Date de visite</Text>
-                </View>
-                <View style={styles.pendingRow}>
-                  <Text style={styles.pendingName}>{approval.purpose}</Text>
-                  <Text style={styles.pendingLabel}>Motif</Text>
+                  <Text style={styles.pendingLabel}>Date d&apos;enregistrement</Text>
                 </View>
               </View>
 
@@ -278,11 +258,8 @@ export default function Residents() {
       <View style={styles.tableContainer}>
         <View style={styles.tableHeader}>
           <Text style={styles.headerCell}>Résident</Text>
-          <Text style={styles.headerCell}>Contact</Text>
-          <Text style={styles.headerCell}>Appartement</Text>
+          <Text style={styles.headerCell}>Bloc & Appartement</Text>
           <Text style={styles.headerCell}>Statut</Text>
-          <Text style={styles.headerCell}>Date d&apos;inscription</Text>
-          <Text style={styles.headerCell}>Actions</Text>
         </View>
       </View>
     </>
@@ -292,17 +269,91 @@ export default function Residents() {
     <ScrollView style={styles.container} contentContainerStyle={styles.listContent}>
       {renderHeader()}
 
-      {filteredResidents.length > 0 ? (
-        filteredResidents.map((resident) => (
-          <View key={resident.id}>
-            {renderResidentItem({ item: resident })}
+      {selectedResident ? (
+        <View style={styles.residentDetailCard}>
+          <View style={styles.detailHeader}>
+            <TouchableOpacity
+              onPress={() => setSelectedResident(null)}
+              style={styles.backButton}
+            >
+              <Text style={styles.backButtonText}>← Retour</Text>
+            </TouchableOpacity>
+            <Text style={styles.detailTitle}>Détails du résident</Text>
           </View>
-        ))
-      ) : (
-        <View style={styles.emptyContainer}>
-          <Home width={48} height={48} color="#9ca3af" />
-          <Text style={styles.emptyText}>Aucun résident trouvé</Text>
+
+          <View style={styles.detailContent}>
+            <View style={styles.detailAvatar}>
+              <Text style={styles.detailAvatarText}>
+                {selectedResident.firstName[0]}{selectedResident.lastName[0]}
+              </Text>
+            </View>
+
+            <Text style={styles.detailName}>
+              {selectedResident.firstName} {selectedResident.lastName}
+            </Text>
+
+            <View style={styles.detailInfo}>
+              <View style={styles.detailRow}>
+                <Home width={20} height={20} color="#6b7280" />
+                <Text style={styles.detailText}>Bloc {selectedResident.block} - {selectedResident.apartment}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Téléphone:</Text>
+                <Text style={styles.detailText}>{selectedResident.phone}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Email:</Text>
+                <Text style={styles.detailText}>{selectedResident.email}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Statut:</Text>
+                <View style={[
+                  styles.statusBadge,
+                  selectedResident.status === 'active' && styles.statusActive,
+                  selectedResident.status === 'inactive' && styles.statusInactive,
+                ]}>
+                  <Text style={[
+                    styles.statusText,
+                    selectedResident.status === 'active' && styles.statusTextActive,
+                    selectedResident.status === 'inactive' && styles.statusTextInactive,
+                  ]}>
+                    {selectedResident.status === 'active' ? 'Actif' : 'Inactif'}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Date d&apos;inscription:</Text>
+                <Text style={styles.detailText}>
+                  {new Date(selectedResident.joinDate).toLocaleDateString('fr-FR')}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.detailActions}>
+              <TouchableOpacity style={styles.detailActionButton}>
+                <Text style={styles.detailActionText}>Voir</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.detailActionButton}>
+                <Text style={styles.detailActionText}>Modifier</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
+      ) : (
+        <>
+          {filteredResidents.length > 0 ? (
+            filteredResidents.map((resident) => (
+              <View key={resident.id}>
+                {renderResidentItem({ item: resident })}
+              </View>
+            ))
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Home width={48} height={48} color="#9ca3af" />
+              <Text style={styles.emptyText}>Aucun résident trouvé</Text>
+            </View>
+          )}
+        </>
       )}
     </ScrollView>
   );
@@ -336,10 +387,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#2563eb',
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
     paddingVertical: 8,
     borderRadius: 8,
-    marginTop: 16,
+    marginTop: 1,
   },
   addButtonText: {
     color: 'white',
@@ -517,6 +568,92 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#f3f4f6',
+    backgroundColor: 'white',
+  },
+  residentDetailCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    padding: 24,
+    marginBottom: 24,
+  },
+  detailHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  backButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 6,
+    marginRight: 16,
+  },
+  backButtonText: {
+    color: '#374151',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  detailTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  detailContent: {
+    alignItems: 'center',
+  },
+  detailAvatar: {
+    width: 80,
+    height: 80,
+    backgroundColor: '#dbeafe',
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  detailAvatarText: {
+    fontSize: 24,
+    fontWeight: '500',
+    color: '#1d4ed8',
+  },
+  detailName: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 24,
+  },
+  detailInfo: {
+    width: '100%',
+    marginBottom: 24,
+  },
+  detailLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    marginRight: 8,
+  },
+  detailActions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 16,
+  },
+  detailActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  detailActionText: {
+    color: '#374151',
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 8,
   },
   residentInfo: {
     flexDirection: 'row',
