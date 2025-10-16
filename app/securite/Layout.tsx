@@ -2,6 +2,7 @@ import {
   Bell,
   Home,
   LayoutDashboard,
+  LogOut,
   Menu,
   ScanLine,
   Settings,
@@ -11,7 +12,7 @@ import {
   X
 } from 'lucide-react-native';
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,6 +20,7 @@ interface LayoutProps {
   onPageChange: (page: string) => void;
   onNotificationPress: () => void;
   showOnlyAvailableNotifications: boolean;
+  onLogout?: () => void;
 }
 
 const menuItems = [
@@ -27,11 +29,12 @@ const menuItems = [
   { id: 'add-visitor', label: 'Ajouter visiteur', icon: UserPlus },
   { id: 'scan-control', label: 'Scan & Contrôle', icon: ScanLine },
   { id: 'residents', label: 'Résidents', icon: Home },
+  { id: 'agents', label: 'Gestion Agents', icon: Shield },
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'settings', label: 'Paramètres', icon: Settings },
 ];
 
-export default function Layout({ children, currentPage, onPageChange, onNotificationPress, showOnlyAvailableNotifications }: LayoutProps) {
+export default function Layout({ children, currentPage, onPageChange, onNotificationPress, showOnlyAvailableNotifications, onLogout }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   return (
@@ -88,10 +91,25 @@ export default function Layout({ children, currentPage, onPageChange, onNotifica
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>AD</Text>
             </View>
-            <View>
+            <View style={styles.userDetails}>
               <Text style={styles.userName}>Admin</Text>
               <Text style={styles.userEmail}>admin@bouclier.com</Text>
             </View>
+            <Pressable
+              onPress={() => {
+                Alert.alert(
+                  'Déconnexion',
+                  'Êtes-vous sûr de vouloir vous déconnecter ?',
+                  [
+                    { text: 'Annuler', style: 'cancel' },
+                    { text: 'Déconnexion', style: 'destructive', onPress: onLogout }
+                  ]
+                );
+              }}
+              style={styles.logoutButton}
+            >
+              <LogOut size={20} color="#dc2626" />
+            </Pressable>
           </View>
         </View>
       </View>
@@ -226,6 +244,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#e5e7eb',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   avatar: {
     width: 32,
@@ -249,6 +268,12 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 12,
     color: '#6b7280',
+  },
+  userDetails: {
+    flex: 1,
+  },
+  logoutButton: {
+    padding: 8,
   },
   main: {
     flex: 1,
