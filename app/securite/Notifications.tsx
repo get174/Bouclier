@@ -1,6 +1,14 @@
 import { Bell, CheckCircle2, Eye, Filter, Mail, Send, Trash2 } from 'lucide-react-native';
 import React, { useState } from 'react';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { Notification } from '../types';
+
+interface NewNotification {
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  recipients: string[];
+}
 
 const mockNotifications: Notification[] = [
   {
@@ -45,11 +53,11 @@ export default function Notifications() {
   const [notifications] = useState<Notification[]>(mockNotifications);
   const [filter, setFilter] = useState<'all' | 'unread' | 'success' | 'warning' | 'error' | 'info'>('all');
   const [showComposeModal, setShowComposeModal] = useState(false);
-  const [newNotification, setNewNotification] = useState({
+  const [newNotification, setNewNotification] = useState<NewNotification>({
     title: '',
     message: '',
-    type: 'info' as const,
-    recipients: [] as string[],
+    type: 'info',
+    recipients: [],
   });
 
   const filteredNotifications = notifications.filter(notification => {
@@ -61,34 +69,33 @@ export default function Notifications() {
   const getNotificationIcon = (type: Notification['type']) => {
     switch (type) {
       case 'success':
-        return <CheckCircle2 className="w-5 h-5 text-green-600" />;
+        return <CheckCircle2 width={20} height={20} color="#16a34a" />;
       case 'warning':
-        return <Bell className="w-5 h-5 text-yellow-600" />;
+        return <Bell width={20} height={20} color="#ca8a04" />;
       case 'error':
-        return <Bell className="w-5 h-5 text-red-600" />;
+        return <Bell width={20} height={20} color="#dc2626" />;
       default:
-        return <Bell className="w-5 h-5 text-blue-600" />;
+        return <Bell width={20} height={20} color="#2563eb" />;
     }
   };
 
   const getNotificationStyle = (type: Notification['type']) => {
     switch (type) {
       case 'success':
-        return 'border-l-green-500 bg-green-50';
+        return { borderLeftColor: '#16a34a', backgroundColor: '#f0fdf4' };
       case 'warning':
-        return 'border-l-yellow-500 bg-yellow-50';
+        return { borderLeftColor: '#ca8a04', backgroundColor: '#fffbeb' };
       case 'error':
-        return 'border-l-red-500 bg-red-50';
+        return { borderLeftColor: '#dc2626', backgroundColor: '#fef2f2' };
       default:
-        return 'border-l-blue-500 bg-blue-50';
+        return { borderLeftColor: '#2563eb', backgroundColor: '#eff6ff' };
     }
   };
 
-  const sendNotification = (e: React.FormEvent) => {
-    e.preventDefault();
+  const sendNotification = () => {
     console.log('Sending notification:', newNotification);
     // Here you would typically send the notification via your API
-    alert('Notification envoyée avec succès!');
+    Alert.alert('Succès', 'Notification envoyée avec succès!');
     setShowComposeModal(false);
     setNewNotification({
       title: '',
@@ -99,216 +106,514 @@ export default function Notifications() {
   };
 
   return (
-    <div className="space-y-6">
+    <ScrollView style={styles.container}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-          <p className="text-gray-600">Centre de notifications et d&apos;alertes</p>
-        </div>
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.headerTitle}>Notifications</Text>
+          <Text style={styles.headerSubtitle}>Centre de notifications et d&apos;alertes</Text>
+        </View>
         
-        <button
-          onClick={() => setShowComposeModal(true)}
-          className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700"
+        <Pressable
+          onPress={() => setShowComposeModal(true)}
+          style={styles.newNotificationButton}
         >
-          <Send className="w-4 h-4 mr-2" />
-          Nouvelle notification
-        </button>
-      </div>
+          <Send width={16} height={16} color="white" />
+          <Text style={styles.newNotificationText}>Nouvelle notification</Text>
+        </Pressable>
+      </View>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <View style={styles.statsGrid}>
         {[
-          { label: 'Total', count: notifications.length, color: 'bg-blue-500' },
-          { label: 'Non lues', count: notifications.filter(n => !n.read).length, color: 'bg-yellow-500' },
-          { label: 'Succès', count: notifications.filter(n => n.type === 'success').length, color: 'bg-green-500' },
-          { label: 'Alertes', count: notifications.filter(n => n.type === 'error').length, color: 'bg-red-500' },
+          { label: 'Total', count: notifications.length, color: '#3b82f6' },
+          { label: 'Non lues', count: notifications.filter(n => !n.read).length, color: '#eab308' },
+          { label: 'Succès', count: notifications.filter(n => n.type === 'success').length, color: '#16a34a' },
+          { label: 'Alertes', count: notifications.filter(n => n.type === 'error').length, color: '#dc2626' },
         ].map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                <p className="text-3xl font-bold text-gray-900">{stat.count}</p>
-              </div>
-              <div className={`${stat.color} p-3 rounded-lg`}>
-                <Bell className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </div>
+          <View key={index} style={styles.statCard}>
+            <View style={styles.statContent}>
+              <Text style={styles.statLabel}>{stat.label}</Text>
+              <Text style={styles.statCount}>{stat.count}</Text>
+            </View>
+            <View style={[styles.statIcon, { backgroundColor: stat.color }]}>
+              <Bell width={24} height={24} color="white" />
+            </View>
+          </View>
         ))}
-      </div>
+      </View>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center space-x-4">
-          <Filter className="w-5 h-5 text-gray-400" />
-          <div className="flex flex-wrap gap-2">
-            {[
-              { key: 'all', label: 'Toutes' },
-              { key: 'unread', label: 'Non lues' },
-              { key: 'success', label: 'Succès' },
-              { key: 'warning', label: 'Avertissements' },
-              { key: 'error', label: 'Erreurs' },
-              { key: 'info', label: 'Informations' },
-            ].map((filterOption) => (
-              <button
-                key={filterOption.key}
-                onClick={() => setFilter(filterOption.key as any)}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  filter === filterOption.key
-                    ? 'bg-blue-100 text-blue-800'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
+      <View style={styles.filters}>
+        <Filter width={20} height={20} color="#9ca3af" />
+        <View style={styles.filterButtons}>
+          {[
+            { key: 'all', label: 'Toutes' },
+            { key: 'unread', label: 'Non lues' },
+            { key: 'success', label: 'Succès' },
+            { key: 'warning', label: 'Avertissements' },
+            { key: 'error', label: 'Erreurs' },
+            { key: 'info', label: 'Informations' },
+          ].map((filterOption) => (
+            <Pressable
+              key={filterOption.key}
+              onPress={() => setFilter(filterOption.key as any)}
+              style={[styles.filterButton, filter === filterOption.key && styles.filterButtonActive]}
+            >
+              <Text style={[styles.filterButtonText, filter === filterOption.key && styles.filterButtonTextActive]}>
                 {filterOption.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
 
       {/* Notifications List */}
-      <div className="space-y-4">
+      <View style={styles.notificationsList}>
         {filteredNotifications.map((notification) => (
-          <div
+          <View
             key={notification.id}
-            className={`bg-white rounded-xl shadow-sm border-l-4 ${getNotificationStyle(notification.type)} p-6`}
+            style={[styles.notificationCard, getNotificationStyle(notification.type)]}
           >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start space-x-4 flex-1">
-                <div className="mt-1">
-                  {getNotificationIcon(notification.type)}
-                </div>
-                
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {notification.title}
-                    </h3>
-                    {!notification.read && (
-                      <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                    )}
-                  </div>
-                  
-                  <p className="text-gray-700 mb-3">{notification.message}</p>
-                  
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <Mail className="w-4 h-4" />
-                      <span>{notification.recipient}</span>
-                    </div>
-                    <span>
-                      {new Date(notification.timestamp).toLocaleDateString('fr-FR', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
-                  </div>
-                </div>
-              </div>
+            <View style={styles.notificationContent}>
+              <View style={styles.notificationIcon}>
+                {getNotificationIcon(notification.type)}
+              </View>
               
-              <div className="flex items-center space-x-2 ml-4">
-                <button className="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded">
-                  <Eye className="w-4 h-4" />
-                </button>
-                <button className="text-red-600 hover:text-red-900 p-1 hover:bg-red-50 rounded">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
+              <View style={styles.notificationText}>
+                <View style={styles.notificationHeader}>
+                  <Text style={styles.notificationTitle}>
+                    {notification.title}
+                  </Text>
+                  {!notification.read && <View style={styles.unreadDot} />}
+                </View>
+                
+                <Text style={styles.notificationMessage}>{notification.message}</Text>
+                
+                <View style={styles.notificationMeta}>
+                  <View style={styles.metaItem}>
+                    <Mail width={16} height={16} color="#6b7280" />
+                    <Text style={styles.metaText}>{notification.recipient}</Text>
+                  </View>
+                  <Text style={styles.metaText}>
+                    {new Date(notification.timestamp).toLocaleDateString('fr-FR', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            
+            <View style={styles.notificationActions}>
+              <Pressable style={styles.actionButton}>
+                <Eye width={16} height={16} color="#2563eb" />
+              </Pressable>
+              <Pressable style={styles.actionButton}>
+                <Trash2 width={16} height={16} color="#dc2626" />
+              </Pressable>
+            </View>
+          </View>
         ))}
-      </div>
+      </View>
 
       {filteredNotifications.length === 0 && (
-        <div className="text-center py-12">
-          <Bell className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-          <p className="text-gray-500">Aucune notification trouvée</p>
-        </div>
+        <View style={styles.emptyState}>
+          <Bell width={48} height={48} color="#d1d5db" />
+          <Text style={styles.emptyText}>Aucune notification trouvée</Text>
+        </View>
       )}
 
       {/* Compose Modal */}
-      {showComposeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Nouvelle notification</h2>
-              <button
-                onClick={() => setShowComposeModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+      <Modal
+        visible={showComposeModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowComposeModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Nouvelle notification</Text>
+              <Pressable
+                onPress={() => setShowComposeModal(false)}
+                style={styles.modalClose}
               >
-                ✕
-              </button>
-            </div>
+                <Text style={styles.modalCloseText}>✕</Text>
+              </Pressable>
+            </View>
             
-            <form onSubmit={sendNotification} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Titre
-                </label>
-                <input
-                  type="text"
+            <View style={styles.form}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Titre</Text>
+                <TextInput
                   value={newNotification.title}
-                  onChange={(e) => setNewNotification(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChangeText={(text) => setNewNotification(prev => ({ ...prev, title: text }))}
+                  style={styles.textInput}
                   placeholder="Titre de la notification"
-                  required
                 />
-              </div>
+              </View>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Message
-                </label>
-                <textarea
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Message</Text>
+                <TextInput
                   value={newNotification.message}
-                  onChange={(e) => setNewNotification(prev => ({ ...prev, message: e.target.value }))}
-                  rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChangeText={(text) => setNewNotification(prev => ({ ...prev, message: text }))}
+                  style={[styles.textInput, styles.textArea]}
                   placeholder="Contenu de la notification"
-                  required
+                  multiline
+                  numberOfLines={4}
                 />
-              </div>
+              </View>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Type
-                </label>
-                <select
-                  value={newNotification.type}
-                  onChange={(e) => setNewNotification(prev => ({ ...prev, type: e.target.value as any }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="info">Information</option>
-                  <option value="success">Succès</option>
-                  <option value="warning">Avertissement</option>
-                  <option value="error">Erreur</option>
-                </select>
-              </div>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Type</Text>
+                <View style={styles.picker}>
+                  <Pressable
+                    onPress={() => setNewNotification(prev => ({ ...prev, type: 'info' as const }))}
+                    style={[styles.pickerOption, newNotification.type === 'info' && styles.pickerOptionActive]}
+                  >
+                    <Text style={styles.pickerText}>Information</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setNewNotification(prev => ({ ...prev, type: 'success' as const }))}
+                    style={[styles.pickerOption, newNotification.type === 'success' && styles.pickerOptionActive]}
+                  >
+                    <Text style={styles.pickerText}>Succès</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setNewNotification(prev => ({ ...prev, type: 'warning' as const }))}
+                    style={[styles.pickerOption, newNotification.type === 'warning' && styles.pickerOptionActive]}
+                  >
+                    <Text style={styles.pickerText}>Avertissement</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setNewNotification(prev => ({ ...prev, type: 'error' as const }))}
+                    style={[styles.pickerOption, newNotification.type === 'error' && styles.pickerOptionActive]}
+                  >
+                    <Text style={styles.pickerText}>Erreur</Text>
+                  </Pressable>
+                </View>
+              </View>
               
-              <div className="flex justify-end space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowComposeModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              <View style={styles.modalActions}>
+                <Pressable
+                  onPress={() => setShowComposeModal(false)}
+                  style={styles.cancelButton}
                 >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+                  <Text style={styles.cancelText}>Annuler</Text>
+                </Pressable>
+                <Pressable
+                  onPress={sendNotification}
+                  style={styles.sendButton}
                 >
-                  <Send className="w-4 h-4" />
-                  <span>Envoyer</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+                  <Send width={16} height={16} color="white" />
+                  <Text style={styles.sendText}>Envoyer</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#f9fafb',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  newNotificationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2563eb',
+
+    paddingVertical: 8,
+    borderRadius: 5,
+    marginLeft  : -35,
+  },
+  newNotificationText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 8,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 24,
+  },
+  statCard: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    margin: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  statContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  statCount: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  statIcon: {
+    padding: 8,
+    borderRadius: 8,
+    alignSelf: 'flex-end',
+  },
+  filters: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  filterButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginLeft: 12,
+  },
+  filterButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    margin: 2,
+    backgroundColor: '#f3f4f6',
+  },
+  filterButtonActive: {
+    backgroundColor: '#dbeafe',
+  },
+  filterButtonText: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  filterButtonTextActive: {
+    color: '#1e40af',
+  },
+  notificationsList: {
+    marginBottom: 24,
+  },
+  notificationCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderLeftWidth: 4,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  notificationContent: {
+    flexDirection: 'row',
+    flex: 1,
+  },
+  notificationIcon: {
+    marginRight: 12,
+    marginTop: 2,
+  },
+  notificationText: {
+    flex: 1,
+  },
+  notificationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  notificationTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+    marginRight: 8,
+  },
+  unreadDot: {
+    width: 8,
+    height: 8,
+    backgroundColor: '#2563eb',
+    borderRadius: 4,
+  },
+  notificationMessage: {
+    fontSize: 14,
+    color: '#374151',
+    marginBottom: 8,
+  },
+  notificationMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  metaText: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginLeft: 4,
+  },
+  notificationActions: {
+    flexDirection: 'row',
+    marginLeft: 12,
+  },
+  actionButton: {
+    padding: 8,
+    marginHorizontal: 4,
+    borderRadius: 4,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 48,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#6b7280',
+    marginTop: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 24,
+    width: '90%',
+    maxWidth: 400,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  modalClose: {
+    padding: 8,
+  },
+  modalCloseText: {
+    fontSize: 18,
+    color: '#6b7280',
+  },
+  form: {
+    // No specific styles
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+  },
+  textArea: {
+    height: 80,
+    textAlignVertical: 'top',
+  },
+  picker: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  pickerOption: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    margin: 4,
+    backgroundColor: '#f3f4f6',
+  },
+  pickerOptionActive: {
+    backgroundColor: '#dbeafe',
+  },
+  pickerText: {
+    fontSize: 14,
+    color: '#374151',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 24,
+  },
+  cancelButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    marginRight: 12,
+  },
+  cancelText: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  sendButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2563eb',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  sendText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 8,
+  },
+});
