@@ -14,10 +14,10 @@ import { Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from 'react
 import type { DashboardStats } from '../types';
 
 const { width } = Dimensions.get('window');
-const isSmallScreen = width < 768;
+const isSmallScreen = width < 968;
 
 const mockStats: DashboardStats = {
-  todayVisitors: 24,
+  todayVisitors: 34,
   approvedVisitors: 18,
   rejectedVisitors: 3,
   pendingVisitors: 3,
@@ -44,6 +44,24 @@ const recentAlerts = [
     time: '25 min',
     type: 'success' as const,
   },
+  {
+    id: '4',
+    message: 'Visiteur Sophie Martin arrivé à l&apos;entrée principale',
+    time: '8 min',
+    type: 'warning' as const,
+  },
+  {
+    id: '5',
+    message: 'Tentative d&apos;accès non autorisé - Porte arrière',
+    time: '15 min',
+    type: 'error' as const,
+  },
+  {
+    id: '6',
+    message: 'Livraison en attente de validation',
+    time: '20 min',
+    type: 'warning' as const,
+  },
 ];
 
 const todayVisitors = [
@@ -53,7 +71,7 @@ const todayVisitors = [
   { name: 'Lucas Bernard', resident: 'Apt 405', time: '17:00', status: 'rejected' as const },
 ];
 
-export default function Dashboard() {
+export default function Dashboard({ showOnlyAvailableNotifications, onNotificationPress }: { showOnlyAvailableNotifications: boolean; onNotificationPress: () => void }) {
 
   const stats = [
     {
@@ -133,17 +151,17 @@ export default function Dashboard() {
           <Text style={styles.title}>Dashboard</Text>
           <Text style={styles.subtitle}>Vue d&apos;ensemble des activités de la résidence</Text>
         </View>
-        <View style={styles.headerRight}>
-          <Calendar size={16} color="#6b7280" />
-          <Text style={styles.dateText}>
-            {new Date().toLocaleDateString('fr-FR', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </Text>
-        </View>
+  <View style={styles.headerRight}>
+    <Calendar size={16} color="#6b7280" />
+    <Text style={styles.dateText}>
+      {new Date().toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })}
+    </Text>
+  </View>
       </View>
 
       {/* Stats Grid */}
@@ -213,11 +231,10 @@ export default function Dashboard() {
         <View style={[styles.sectionCard, !isSmallScreen && styles.halfWidth]}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Alertes récentes</Text>
-            <Bell size={20} color="#6b7280" />
           </View>
 
           <View style={styles.alertsList}>
-            {recentAlerts.map((alert) => (
+            {(showOnlyAvailableNotifications ? recentAlerts.filter(alert => alert.type === 'warning' || alert.type === 'error') : recentAlerts).map((alert) => (
               <View key={alert.id} style={styles.alertItem}>
                 <View style={[styles.alertDot, { backgroundColor: getAlertColor(alert.type) }]} />
                 <View style={styles.alertContent}>
@@ -226,6 +243,11 @@ export default function Dashboard() {
                 </View>
               </View>
             ))}
+            {showOnlyAvailableNotifications && recentAlerts.filter(alert => alert.type === 'warning' || alert.type === 'error').length === 0 && (
+              <View style={styles.noNotifications}>
+                <Text style={styles.noNotificationsText}>Aucune notification disponible</Text>
+              </View>
+            )}
           </View>
 
           <Pressable style={styles.seeAllButton}>
@@ -262,8 +284,7 @@ export default function Dashboard() {
 const styles = StyleSheet.create({
   content: {
     flex: 1,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 1,
   },
   header: {
     flexDirection: 'row',
@@ -526,5 +547,35 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#111827',
     marginLeft: 12,
+  },
+  notificationIcon: {
+    position: 'relative',
+    marginRight: 12,
+  },
+  badge: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    backgroundColor: '#ef4444',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  noNotifications: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  noNotificationsText: {
+    fontSize: 14,
+    color: '#6b7280',
+    fontStyle: 'italic',
   },
 });

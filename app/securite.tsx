@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AddVisitor from './securite/AddVisitor';
-import Layout from './securite/Layout';
 import Dashboard from './securite/Dashboard';
+import Layout from './securite/Layout';
 import Notifications from './securite/Notifications';
 import Residents from './securite/Residents';
 import ScanControl from './securite/ScanControl';
@@ -10,11 +10,12 @@ import Visitors from './securite/Visitors';
 
 export default function Securite() {
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [showOnlyAvailableNotifications, setShowOnlyAvailableNotifications] = useState(false);
 
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard showOnlyAvailableNotifications={showOnlyAvailableNotifications} onNotificationPress={() => setShowOnlyAvailableNotifications(!showOnlyAvailableNotifications)} />;
       case 'visitors':
         return <Visitors />;
       case 'add-visitor':
@@ -28,7 +29,7 @@ export default function Securite() {
       case 'settings':
         return <Settings />;
       default:
-        return <Dashboard />;
+        return <Dashboard showOnlyAvailableNotifications={showOnlyAvailableNotifications} onNotificationPress={() => setShowOnlyAvailableNotifications(!showOnlyAvailableNotifications)} />;
     }
   };
 
@@ -36,6 +37,8 @@ export default function Securite() {
     <Layout
       currentPage={currentPage}
       onPageChange={setCurrentPage}
+      onNotificationPress={() => setShowOnlyAvailableNotifications(!showOnlyAvailableNotifications)}
+      showOnlyAvailableNotifications={showOnlyAvailableNotifications}
     >
       {renderPage()}
     </Layout>

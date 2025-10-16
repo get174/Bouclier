@@ -17,6 +17,8 @@ interface LayoutProps {
   children: React.ReactNode;
   currentPage: string;
   onPageChange: (page: string) => void;
+  onNotificationPress: () => void;
+  showOnlyAvailableNotifications: boolean;
 }
 
 const menuItems = [
@@ -29,7 +31,7 @@ const menuItems = [
   { id: 'settings', label: 'Paramètres', icon: Settings },
 ];
 
-export default function Layout({ children, currentPage, onPageChange }: LayoutProps) {
+export default function Layout({ children, currentPage, onPageChange, onNotificationPress, showOnlyAvailableNotifications }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   return (
@@ -102,12 +104,18 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
             onPress={() => setSidebarOpen(true)}
             style={styles.menuButton}
           >
-            <Menu width={20} height={20} color="#6b7280" />
+            <Menu width={25} height={25} color="#6b7280" />
           </Pressable>
           
           <View style={styles.topBarRight}>
-            <Bell width={20} height={20} color="#6b7280" />
-            <View style={styles.notificationDot} />
+            <Pressable onPress={onNotificationPress} style={styles.notificationIcon}>
+              <Bell width={20} height={20} color={showOnlyAvailableNotifications ? "#3b82f6" : "#6b7280"} />
+              {showOnlyAvailableNotifications && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>!</Text>
+                </View>
+              )}
+            </Pressable>
           </View>
         </View>
 
@@ -123,7 +131,8 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fbfbfbff',
+    backgroundColor: '#ffffffff',
+   paddingHorizontal: -60,
   },
   overlay: {
     position: 'absolute',
@@ -267,17 +276,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  notificationDot: {
+  notificationIcon: {
+    position: 'relative',
+    padding: 8,
+  },
+  badge: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 6,
-    height: 6,
+    top: 4,
+    right: 4,
+    width: 16,
+    height: 16,
     backgroundColor: '#ef4444',
-    borderRadius: 3,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   content: {
     flex: 1,
-    padding: 24,
+    padding: 4,
   },
 });

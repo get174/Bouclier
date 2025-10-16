@@ -268,12 +268,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.surface,
+    paddingHorizontal: -45,
   },
   listContent: {
-    padding: 32,
+    padding: 20,
   },
   header: {
-    marginBottom: 32,
+    marginBottom: 20,
   },
   headerTitle: {
     fontSize: 32,
@@ -405,7 +406,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: Colors.light.surface,
     paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.border,
   },
@@ -420,7 +421,7 @@ const styles = StyleSheet.create({
   visitorRow: {
     flexDirection: 'row',
     paddingVertical: 20,
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.borderLight,
     backgroundColor: Colors.light.card,
