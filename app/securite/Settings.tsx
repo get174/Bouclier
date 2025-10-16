@@ -1,5 +1,6 @@
 import { Download, Mail, Save, Settings as SettingsIcon, Shield, Upload, User as UserIcon, Users } from 'lucide-react-native';
 import React, { useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import type { User } from '../types';
 
 const mockUsers: User[] = [
@@ -41,12 +42,12 @@ export default function Settings() {
 
   const handleSaveSettings = () => {
     console.log('Saving system settings:', systemSettings);
-    alert('Paramètres sauvegardés avec succès!');
+    Alert.alert('Succès', 'Paramètres sauvegardés avec succès!');
   };
 
   const handleExport = (type: 'excel' | 'pdf', data: 'visitors' | 'residents' | 'notifications') => {
     console.log(`Exporting ${data} as ${type}`);
-    alert(`Export ${type.toUpperCase()} des ${data} en cours...`);
+    Alert.alert('Export', `Export ${type.toUpperCase()} des ${data} en cours...`);
   };
 
   const tabs = [
@@ -56,340 +57,625 @@ export default function Settings() {
   ];
 
   return (
-    <div className="space-y-6">
+    <ScrollView style={styles.container}>
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Paramètres</h1>
-        <p className="text-gray-600">Configuration du système et gestion des utilisateurs</p>
-      </div>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Paramètres</Text>
+        <Text style={styles.headerSubtitle}>Configuration du système et gestion des utilisateurs</Text>
+      </View>
 
       {/* Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8 px-6">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <Icon className="w-5 h-5" />
-                    <span>{tab.label}</span>
-                  </div>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
+      <View style={styles.tabsContainer}>
+        <View style={styles.tabsHeader}>
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <Pressable
+                key={tab.id}
+                onPress={() => setActiveTab(tab.id as any)}
+                style={[styles.tab, activeTab === tab.id && styles.tabActive]}
+              >
+                <Icon width={20} height={20} color={activeTab === tab.id ? '#2563eb' : '#6b7280'} />
+                <Text style={[styles.tabText, activeTab === tab.id && styles.tabTextActive]}>
+                  {tab.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
 
-        <div className="p-6">
+        <View style={styles.tabContent}>
           {/* Users Tab */}
           {activeTab === 'users' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">Gestion des utilisateurs</h2>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-                  Ajouter utilisateur
-                </button>
-              </div>
+            <View style={styles.usersTab}>
+              <View style={styles.usersHeader}>
+                <Text style={styles.sectionTitle}>Gestion des utilisateurs</Text>
+                <Pressable style={styles.addUserButton}>
+                  <Text style={styles.addUserText}>Ajouter utilisateur</Text>
+                </Pressable>
+              </View>
 
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Utilisateur
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Rôle
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Statut
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Dernière connexion
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {users.map((user) => (
-                      <tr key={user.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                              <UserIcon className="w-5 h-5 text-blue-600" />
-                            </div>
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {user.firstName} {user.lastName}
-                              </div>
-                              <div className="text-sm text-gray-500">{user.email}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            user.role === 'admin' 
-                              ? 'bg-purple-100 text-purple-800'
-                              : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {user.role === 'admin' ? 'Administrateur' : 'Agent'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            user.status === 'active' 
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {user.status === 'active' ? 'Actif' : 'Inactif'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(user.lastLogin).toLocaleString('fr-FR')}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button className="text-blue-600 hover:text-blue-900 mr-4">
-                            Modifier
-                          </button>
-                          {user.role !== 'admin' && (
-                            <button className="text-red-600 hover:text-red-900">
-                              Supprimer
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+              <ScrollView horizontal style={styles.tableContainer}>
+                <View style={styles.table}>
+                  <View style={styles.tableHeader}>
+                    <Text style={styles.tableHeaderText}>Utilisateur</Text>
+                    <Text style={styles.tableHeaderText}>Rôle</Text>
+                    <Text style={styles.tableHeaderText}>Statut</Text>
+                    <Text style={styles.tableHeaderText}>Dernière connexion</Text>
+                    <Text style={styles.tableHeaderText}>Actions</Text>
+                  </View>
+                  {users.map((user) => (
+                    <View key={user.id} style={styles.tableRow}>
+                      <View style={styles.userCell}>
+                        <View style={styles.userAvatar}>
+                          <UserIcon width={20} height={20} color="#2563eb" />
+                        </View>
+                        <View>
+                          <Text style={styles.userName}>
+                            {user.firstName} {user.lastName}
+                          </Text>
+                          <Text style={styles.userEmail}>{user.email}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.roleCell}>
+                        <Text style={[styles.roleBadge, user.role === 'admin' ? styles.adminBadge : styles.agentBadge]}>
+                          {user.role === 'admin' ? 'Administrateur' : 'Agent'}
+                        </Text>
+                      </View>
+                      <View style={styles.statusCell}>
+                        <Text style={[styles.statusBadge, user.status === 'active' ? styles.activeBadge : styles.inactiveBadge]}>
+                          {user.status === 'active' ? 'Actif' : 'Inactif'}
+                        </Text>
+                      </View>
+                      <Text style={styles.lastLoginText}>
+                        {new Date(user.lastLogin).toLocaleString('fr-FR')}
+                      </Text>
+                      <View style={styles.actionsCell}>
+                        <Pressable style={styles.editButton}>
+                          <Text style={styles.editText}>Modifier</Text>
+                        </Pressable>
+                        {user.role !== 'admin' && (
+                          <Pressable style={styles.deleteButton}>
+                            <Text style={styles.deleteText}>Supprimer</Text>
+                          </Pressable>
+                        )}
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+            </View>
           )}
 
           {/* System Tab */}
           {activeTab === 'system' && (
-            <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-900">Paramètres système</h2>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <View style={styles.systemTab}>
+              <Text style={styles.sectionTitle}>Paramètres système</Text>
+
+              <View style={styles.settingsGrid}>
                 {/* Approval Settings */}
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center">
-                    <Shield className="w-5 h-5 mr-2 text-blue-600" />
-                    Approbation des visiteurs
-                  </h3>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-gray-700">
-                        Approbation automatique
-                      </label>
-                      <button
-                        onClick={() => handleSystemSettingChange('autoApproval', !systemSettings.autoApproval)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full ${
-                          systemSettings.autoApproval ? 'bg-blue-600' : 'bg-gray-200'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                            systemSettings.autoApproval ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Fenêtre de visite (heures)
-                      </label>
-                      <input
-                        type="number"
-                        value={systemSettings.visitTimeWindow}
-                        onChange={(e) => handleSystemSettingChange('visitTimeWindow', parseInt(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        min="1"
-                        max="24"
+                <View style={styles.settingsCard}>
+                  <View style={styles.cardHeader}>
+                    <Shield width={20} height={20} color="#2563eb" />
+                    <Text style={styles.cardTitle}>Approbation des visiteurs</Text>
+                  </View>
+
+                  <View style={styles.settingsList}>
+                    <View style={styles.settingItem}>
+                      <Text style={styles.settingLabel}>Approbation automatique</Text>
+                      <Switch
+                        value={systemSettings.autoApproval}
+                        onValueChange={(value) => handleSystemSettingChange('autoApproval', value)}
                       />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Max visiteurs par jour
-                      </label>
-                      <input
-                        type="number"
-                        value={systemSettings.maxVisitorsPerDay}
-                        onChange={(e) => handleSystemSettingChange('maxVisitorsPerDay', parseInt(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        min="1"
+                    </View>
+
+                    <View style={styles.settingItem}>
+                      <Text style={styles.settingLabel}>Fenêtre de visite (heures)</Text>
+                      <TextInput
+                        value={systemSettings.visitTimeWindow.toString()}
+                        onChangeText={(text) => handleSystemSettingChange('visitTimeWindow', parseInt(text) || 0)}
+                        style={styles.numberInput}
+                        keyboardType="numeric"
                       />
-                    </div>
-                  </div>
-                </div>
+                    </View>
+
+                    <View style={styles.settingItem}>
+                      <Text style={styles.settingLabel}>Max visiteurs par jour</Text>
+                      <TextInput
+                        value={systemSettings.maxVisitorsPerDay.toString()}
+                        onChangeText={(text) => handleSystemSettingChange('maxVisitorsPerDay', parseInt(text) || 0)}
+                        style={styles.numberInput}
+                        keyboardType="numeric"
+                      />
+                    </View>
+                  </View>
+                </View>
 
                 {/* Notification Settings */}
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center">
-                    <Mail className="w-5 h-5 mr-2 text-green-600" />
-                    Notifications
-                  </h3>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-gray-700">
-                        Notifications email
-                      </label>
-                      <button
-                        onClick={() => handleSystemSettingChange('notificationsEmail', !systemSettings.notificationsEmail)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full ${
-                          systemSettings.notificationsEmail ? 'bg-green-600' : 'bg-gray-200'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                            systemSettings.notificationsEmail ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-gray-700">
-                        Notifications push
-                      </label>
-                      <button
-                        onClick={() => handleSystemSettingChange('notificationsPush', !systemSettings.notificationsPush)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full ${
-                          systemSettings.notificationsPush ? 'bg-green-600' : 'bg-gray-200'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                            systemSettings.notificationsPush ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Expiration QR code (heures)
-                      </label>
-                      <input
-                        type="number"
-                        value={systemSettings.qrCodeExpiry}
-                        onChange={(e) => handleSystemSettingChange('qrCodeExpiry', parseInt(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        min="1"
-                        max="168"
+                <View style={styles.settingsCard}>
+                  <View style={styles.cardHeader}>
+                    <Mail width={20} height={20} color="#16a34a" />
+                    <Text style={styles.cardTitle}>Notifications</Text>
+                  </View>
+
+                  <View style={styles.settingsList}>
+                    <View style={styles.settingItem}>
+                      <Text style={styles.settingLabel}>Notifications email</Text>
+                      <Switch
+                        value={systemSettings.notificationsEmail}
+                        onValueChange={(value) => handleSystemSettingChange('notificationsEmail', value)}
                       />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex justify-end">
-                <button
-                  onClick={handleSaveSettings}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>Sauvegarder</span>
-                </button>
-              </div>
-            </div>
+                    </View>
+
+                    <View style={styles.settingItem}>
+                      <Text style={styles.settingLabel}>Notifications push</Text>
+                      <Switch
+                        value={systemSettings.notificationsPush}
+                        onValueChange={(value) => handleSystemSettingChange('notificationsPush', value)}
+                      />
+                    </View>
+
+                    <View style={styles.settingItem}>
+                      <Text style={styles.settingLabel}>Expiration QR code (heures)</Text>
+                      <TextInput
+                        value={systemSettings.qrCodeExpiry.toString()}
+                        onChangeText={(text) => handleSystemSettingChange('qrCodeExpiry', parseInt(text) || 0)}
+                        style={styles.numberInput}
+                        keyboardType="numeric"
+                      />
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              <View style={styles.saveButtonContainer}>
+                <Pressable onPress={handleSaveSettings} style={styles.saveButton}>
+                  <Save width={16} height={16} color="white" />
+                  <Text style={styles.saveButtonText}>Sauvegarder</Text>
+                </Pressable>
+              </View>
+            </View>
           )}
 
           {/* Exports Tab */}
           {activeTab === 'exports' && (
-            <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-900">Exports de données</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <View style={styles.exportsTab}>
+              <Text style={styles.sectionTitle}>Exports de données</Text>
+
+              <View style={styles.exportsGrid}>
                 {[
-                  { 
-                    title: 'Visiteurs', 
+                  {
+                    title: 'Visiteurs',
                     description: 'Exporter la liste complète des visiteurs',
                     data: 'visitors' as const,
                     count: '156 entrées'
                   },
-                  { 
-                    title: 'Résidents', 
+                  {
+                    title: 'Résidents',
                     description: 'Exporter la liste des résidents',
                     data: 'residents' as const,
                     count: '89 entrées'
                   },
-                  { 
-                    title: 'Notifications', 
+                  {
+                    title: 'Notifications',
                     description: 'Exporter l\'historique des notifications',
                     data: 'notifications' as const,
                     count: '324 entrées'
                   },
                 ].map((exportItem) => (
-                  <div key={exportItem.data} className="bg-gray-50 rounded-lg p-6">
-                    <h3 className="text-md font-semibold text-gray-900 mb-2">
-                      {exportItem.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-4">
-                      {exportItem.description}
-                    </p>
-                    <p className="text-xs text-gray-500 mb-4">
-                      {exportItem.count}
-                    </p>
-                    
-                    <div className="space-y-2">
-                      <button
-                        onClick={() => handleExport('excel', exportItem.data)}
-                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center justify-center space-x-2"
+                  <View key={exportItem.data} style={styles.exportCard}>
+                    <Text style={styles.exportTitle}>{exportItem.title}</Text>
+                    <Text style={styles.exportDescription}>{exportItem.description}</Text>
+                    <Text style={styles.exportCount}>{exportItem.count}</Text>
+
+                    <View style={styles.exportButtons}>
+                      <Pressable
+                        onPress={() => handleExport('excel', exportItem.data)}
+                        style={styles.exportButtonExcel}
                       >
-                        <Download className="w-4 h-4" />
-                        <span>Export Excel</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => handleExport('pdf', exportItem.data)}
-                        className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium flex items-center justify-center space-x-2"
+                        <Download width={16} height={16} color="white" />
+                        <Text style={styles.exportButtonText}>Export Excel</Text>
+                      </Pressable>
+
+                      <Pressable
+                        onPress={() => handleExport('pdf', exportItem.data)}
+                        style={styles.exportButtonPdf}
                       >
-                        <Download className="w-4 h-4" />
-                        <span>Export PDF</span>
-                      </button>
-                    </div>
-                  </div>
+                        <Download width={16} height={16} color="white" />
+                        <Text style={styles.exportButtonText}>Export PDF</Text>
+                      </Pressable>
+                    </View>
+                  </View>
                 ))}
-              </div>
-              
+              </View>
+
               {/* Import Section */}
-              <div className="border-t border-gray-200 pt-6">
-                <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center">
-                  <Upload className="w-5 h-5 mr-2 text-blue-600" />
-                  Import de données
-                </h3>
-                
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-800 mb-4">
+              <View style={styles.importSection}>
+                <View style={styles.importHeader}>
+                  <Upload width={20} height={20} color="#2563eb" />
+                  <Text style={styles.importTitle}>Import de données</Text>
+                </View>
+
+                <View style={styles.importCard}>
+                  <Text style={styles.importDescription}>
                     Importez des données depuis un fichier Excel ou CSV.
-                  </p>
-                  <input
-                    type="file"
-                    accept=".xlsx,.xls,.csv"
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                  </Text>
+                  <TextInput
+                    placeholder="Sélectionner un fichier..."
+                    style={styles.fileInput}
+                    editable={false}
                   />
-                </div>
-              </div>
-            </div>
+                </View>
+              </View>
+            </View>
           )}
-        </div>
-      </div>
-    </div>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#f9fafb',
+  },
+  header: {
+    marginBottom: 24,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  tabsContainer: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  tabsHeader: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  tab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 8,
+  },
+  tabActive: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#2563eb',
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6b7280',
+    marginLeft: 8,
+  },
+  tabTextActive: {
+    color: '#1d4ed8',
+  },
+  tabContent: {
+    padding: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 24,
+  },
+  usersTab: {
+    // No specific styles
+  },
+  usersHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  addUserButton: {
+    backgroundColor: '#2563eb',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginLeft: -43,
+    marginTop : 35,
+  },
+  addUserText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  tableContainer: {
+    // No specific styles
+  },
+  table: {
+    minWidth: 800,
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#f9fafb',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  tableHeaderText: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#6b7280',
+    textTransform: 'uppercase',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  userCell: {
+    flex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  userAvatar: {
+    width: 40,
+    height: 40,
+    backgroundColor: '#dbeafe',
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  userName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#111827',
+  },
+  userEmail: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  roleCell: {
+    flex: 1,
+  },
+  roleBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    fontSize: 12,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  adminBadge: {
+    backgroundColor: '#faf5ff',
+    color: '#7c3aed',
+  },
+  agentBadge: {
+    backgroundColor: '#dbeafe',
+    color: '#1d4ed8',
+  },
+  statusCell: {
+    flex: 1,
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    fontSize: 12,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  activeBadge: {
+    backgroundColor: '#dcfce7',
+    color: '#166534',
+  },
+  inactiveBadge: {
+    backgroundColor: '#fef2f2',
+    color: '#dc2626',
+  },
+  lastLoginText: {
+    flex: 1.5,
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  actionsCell: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  editButton: {
+    marginRight: 16,
+  },
+  editText: {
+    fontSize: 14,
+    color: '#2563eb',
+  },
+  deleteButton: {
+    // No specific styles
+  },
+  deleteText: {
+    fontSize: 14,
+    color: '#dc2626',
+  },
+  systemTab: {
+    // No specific styles
+  },
+  settingsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 24,
+  },
+  settingsCard: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
+    padding: 24,
+    margin: 8,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+    marginLeft: 8,
+  },
+  settingsList: {
+    // No specific styles
+  },
+  settingItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  settingLabel: {
+    fontSize: 14,
+    color: '#374151',
+    flex: 1,
+  },
+  numberInput: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 14,
+    width: 80,
+    textAlign: 'center',
+  },
+  saveButtonContainer: {
+    alignItems: 'flex-end',
+  },
+  saveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2563eb',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 8,
+  },
+  exportsTab: {
+    // No specific styles
+  },
+  exportsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 24,
+  },
+  exportCard: {
+    flex: 1,
+    minWidth: '30%',
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
+    padding: 24,
+    margin: 8,
+  },
+  exportTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  exportDescription: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 8,
+  },
+  exportCount: {
+    fontSize: 12,
+    color: '#9ca3af',
+    marginBottom: 16,
+  },
+  exportButtons: {
+    // No specific styles
+  },
+  exportButtonExcel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#16a34a',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+    marginBottom: 8,
+  },
+  exportButtonPdf: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#dc2626',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  exportButtonText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '500',
+    marginLeft: 8,
+  },
+  importSection: {
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+    paddingTop: 24,
+  },
+  importHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  importTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+    marginLeft: 8,
+  },
+  importCard: {
+    backgroundColor: '#eff6ff',
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
+    borderRadius: 8,
+    padding: 16,
+  },
+  importDescription: {
+    fontSize: 14,
+    color: '#1e40af',
+    marginBottom: 16,
+  },
+  fileInput: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 14,
+    backgroundColor: 'white',
+  },
+});
