@@ -1,6 +1,6 @@
-import { Download, Edit2, Eye, Filter, Plus, Search, Trash2, Users } from 'lucide-react-native';
+import { Download, Filter, Plus, Search, Users } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../constants/Colors';
 import type { Visitor } from '../types';
 
@@ -64,6 +64,8 @@ export default function Visitors() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'status'>('date');
+  const [selectedVisitor, setSelectedVisitor] = useState<Visitor | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const filteredVisitors = visitors
     .filter(visitor => {
@@ -125,46 +127,27 @@ export default function Visitors() {
   };
 
   const renderVisitorItem = ({ item }: { item: Visitor }) => (
-    <View style={styles.visitorRow}>
+    <TouchableOpacity
+      style={styles.visitorRow}
+      onPress={() => {
+        setSelectedVisitor(item);
+        setModalVisible(true);
+      }}
+    >
       <View style={styles.visitorInfo}>
         <Text style={styles.visitorName}>
           {item.firstName} {item.lastName}
         </Text>
-        <Text style={styles.visitorPhone}>{item.phone}</Text>
-      </View>
-
-      <View style={styles.residentInfo}>
-        <Text style={styles.residentName}>{item.residentName}</Text>
-        <Text style={styles.apartmentInfo}>{item.apartment}</Text>
       </View>
 
       <View style={styles.visitInfo}>
-        <Text style={styles.visitDate}>
-          {new Date(item.visitDate).toLocaleDateString('fr-FR')}
-        </Text>
         <Text style={styles.visitTime}>{item.visitTime}</Text>
       </View>
 
-      <View style={styles.purposeInfo}>
-        <Text style={styles.purposeText}>{item.purpose}</Text>
+      <View style={styles.apartmentInfo}>
+        <Text style={styles.apartmentText}>{item.apartment}</Text>
       </View>
-
-      <View style={styles.statusInfo}>
-        {getStatusBadge(item.status)}
-      </View>
-
-      <View style={styles.actionsInfo}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Eye width={16} height={16} color={Colors.light.primary} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Edit2 width={16} height={16} color={Colors.light.success} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Trash2 width={16} height={16} color={Colors.light.error} />
-        </TouchableOpacity>
-      </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const renderHeader = () => (
@@ -232,11 +215,8 @@ export default function Visitors() {
       <View style={styles.tableContainer}>
         <View style={styles.tableHeader}>
           <Text style={styles.headerCell}>Visiteur</Text>
-          <Text style={styles.headerCell}>Résident / Apt</Text>
-          <Text style={styles.headerCell}>Date / Heure</Text>
-          <Text style={styles.headerCell}>Motif</Text>
-          <Text style={styles.headerCell}>Statut</Text>
-          <Text style={styles.headerCell}>Actions</Text>
+          <Text style={styles.headerCell}>Heure</Text>
+          <Text style={styles.headerCell}>Appartement</Text>
         </View>
       </View>
     </>
@@ -260,6 +240,56 @@ export default function Visitors() {
         }
         contentContainerStyle={styles.listContent}
       />
+
+      {/* Modal for visitor details */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Détails du visiteur</Text>
+            {selectedVisitor && (
+              <View style={styles.modalDetails}>
+                <Text style={styles.detailLabel}>Nom:</Text>
+                <Text style={styles.detailValue}>{selectedVisitor.firstName} {selectedVisitor.lastName}</Text>
+
+                <Text style={styles.detailLabel}>Téléphone:</Text>
+                <Text style={styles.detailValue}>{selectedVisitor.phone}</Text>
+
+                <Text style={styles.detailLabel}>Date de visite:</Text>
+                <Text style={styles.detailValue}>{new Date(selectedVisitor.visitDate).toLocaleDateString('fr-FR')}</Text>
+
+                <Text style={styles.detailLabel}>Heure de visite:</Text>
+                <Text style={styles.detailValue}>{selectedVisitor.visitTime}</Text>
+
+                <Text style={styles.detailLabel}>Résident:</Text>
+                <Text style={styles.detailValue}>{selectedVisitor.residentName}</Text>
+
+                <Text style={styles.detailLabel}>Appartement:</Text>
+                <Text style={styles.detailValue}>{selectedVisitor.apartment}</Text>
+
+                <Text style={styles.detailLabel}>Motif:</Text>
+                <Text style={styles.detailValue}>{selectedVisitor.purpose}</Text>
+
+                <Text style={styles.detailLabel}>Statut:</Text>
+                <Text style={styles.detailValue}>{selectedVisitor.status}</Text>
+
+                <Text style={styles.detailLabel}>Créé le:</Text>
+                <Text style={styles.detailValue}>{new Date(selectedVisitor.createdAt).toLocaleString('fr-FR')}</Text>
+              </View>
+            )}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Fermer</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -447,9 +477,11 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
   },
   apartmentInfo: {
-    fontSize: 14,
-    color: Colors.light.textSecondary,
-    marginTop: 4,
+    flex: 1,
+  },
+  apartmentText: {
+    fontSize: 16,
+    color: Colors.light.text,
   },
   visitInfo: {
     flex: 1,
@@ -549,5 +581,56 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: Colors.light.card,
+    borderRadius: 16,
+    padding: 24,
+    width: '90%',
+    maxWidth: 400,
+    shadowColor: Colors.light.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: Colors.light.text,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalDetails: {
+    marginBottom: 20,
+  },
+  detailLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.light.textSecondary,
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  detailValue: {
+    fontSize: 16,
+    color: Colors.light.text,
+  },
+  closeButton: {
+    backgroundColor: Colors.light.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

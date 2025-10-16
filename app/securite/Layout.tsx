@@ -131,7 +131,7 @@ export default function Layout({ children, currentPage, onPageChange, onNotifica
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffffff',
+    backgroundColor: '#cdcfecff',
    paddingHorizontal: -60,
   },
   overlay: {
@@ -298,6 +298,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 4,
+    
   },
 });
