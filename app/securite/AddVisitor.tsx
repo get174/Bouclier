@@ -1,343 +1,466 @@
-import { Calendar, Clock, FileText, Home, Phone, Save, User, X } from 'lucide-react-native';
+import { Clock, Phone, Plus, Save, User, X } from 'lucide-react-native';
 import React, { useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Colors } from '../../constants/Colors';
+
+interface VisitorEntry {
+  id: string;
+  name: string;
+  phone: string;
+  time: string;
+  photo?: string;
+}
+
+const apartmentOptions = [
+  'Apt 101', 'Apt 102', 'Apt 103', 'Apt 201', 'Apt 202', 'Apt 203',
+  'Apt 301', 'Apt 302', 'Apt 303', 'Apt 401', 'Apt 402', 'Apt 403',
+  'Bât A-101', 'Bât A-102', 'Bât B-201', 'Bât B-202'
+];
 
 export default function AddVisitor() {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    phone: '',
-    visitDate: '',
-    visitTime: '',
-    residentName: '',
-    apartment: '',
-    purpose: '',
-    notes: '',
-  });
-
+  const [apartment, setApartment] = useState('');
+  const [apartmentSearch, setApartmentSearch] = useState('');
+  const [visitors, setVisitors] = useState<VisitorEntry[]>([
+    { id: '1', name: '', phone: '', time: '', photo: undefined }
+  ]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+  const filteredApartments = apartmentOptions.filter(apt =>
+    apt.toLowerCase().includes(apartmentSearch.toLowerCase())
+  );
+
+  const handleApartmentSelect = (selectedApartment: string) => {
+    setApartment(selectedApartment);
+    setApartmentSearch('');
+  };
+
+  const handleVisitorChange = (id: string, field: keyof VisitorEntry, value: string) => {
+    setVisitors(prev => prev.map(v => v.id === id ? { ...v, [field]: value } : v));
+    if (errors[`${id}-${field}`]) {
+      setErrors(prev => ({ ...prev, [`${id}-${field}`]: '' }));
+    }
+  };
+
+  const addVisitor = () => {
+    const newId = (visitors.length + 1).toString();
+    setVisitors(prev => [...prev, { id: newId, name: '', phone: '', time: '', photo: undefined }]);
+  };
+
+  const removeVisitor = (id: string) => {
+    if (visitors.length > 1) {
+      setVisitors(prev => prev.filter(v => v.id !== id));
     }
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.firstName.trim()) newErrors.firstName = 'Le prénom est requis';
-    if (!formData.lastName.trim()) newErrors.lastName = 'Le nom est requis';
-    if (!formData.phone.trim()) newErrors.phone = 'Le téléphone est requis';
-    if (!formData.visitDate) newErrors.visitDate = 'La date de visite est requise';
-    if (!formData.visitTime) newErrors.visitTime = 'L\'heure de visite est requise';
-    if (!formData.residentName.trim()) newErrors.residentName = 'Le nom du résident est requis';
-    if (!formData.apartment.trim()) newErrors.apartment = 'L\'appartement est requis';
-    if (!formData.purpose.trim()) newErrors.purpose = 'Le motif de visite est requis';
+    if (!apartment.trim()) newErrors.apartment = 'L\'appartement est requis';
 
-    // Phone validation
-    if (formData.phone && !/^(\+33|0)[1-9](\s?\d{2}){4}$/.test(formData.phone.replace(/\s/g, ''))) {
-      newErrors.phone = 'Format de téléphone invalide';
-    }
+    visitors.forEach(visitor => {
+      if (!visitor.name.trim()) newErrors[`${visitor.id}-name`] = 'Le nom est requis';
+      if (!visitor.phone.trim()) newErrors[`${visitor.id}-phone`] = 'Le téléphone est requis';
+      if (!visitor.time.trim()) newErrors[`${visitor.id}-time`] = 'L\'heure est requise';
 
-    // Date validation (not in the past)
-    if (formData.visitDate) {
-      const visitDate = new Date(formData.visitDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (visitDate < today) {
-        newErrors.visitDate = 'La date ne peut pas être dans le passé';
+      // Phone validation
+      if (visitor.phone && !/^(\+33|0)[1-9](\s?\d{2}){4}$/.test(visitor.phone.replace(/\s/g, ''))) {
+        newErrors[`${visitor.id}-phone`] = 'Format de téléphone invalide';
       }
-    }
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = () => {
     if (validateForm()) {
-      console.log('Form submitted:', formData);
-      // Here you would typically send the data to your API
-      alert('Visiteur ajouté avec succès!');
-      
+      const visitorData = { apartment, visitors };
+      console.log('Form submitted:', visitorData);
+      Alert.alert('Succès', `${visitors.length} visiteur(s) ajouté(s) avec succès pour ${apartment}!`);
+
       // Reset form
-      setFormData({
-        firstName: '',
-        lastName: '',
-        phone: '',
-        visitDate: '',
-        visitTime: '',
-        residentName: '',
-        apartment: '',
-        purpose: '',
-        notes: '',
-      });
+      setApartment('');
+      setVisitors([{ id: '1', name: '', phone: '', time: '', photo: undefined }]);
     }
   };
 
   const handleCancel = () => {
-    setFormData({
-      firstName: '',
-      lastName: '',
-      phone: '',
-      visitDate: '',
-      visitTime: '',
-      residentName: '',
-      apartment: '',
-      purpose: '',
-      notes: '',
-    });
+    setApartment('');
+    setVisitors([{ id: '1', name: '', phone: '', time: '', photo: undefined }]);
     setErrors({});
   };
 
+  const selectPhoto = (visitorId: string) => {
+    // Placeholder for photo selection - will be implemented with proper image picker
+    Alert.alert('Photo', 'Fonctionnalité de sélection de photo à implémenter');
+  };
+
   return (
-    <div className="space-y-6">
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Ajouter un visiteur</h1>
-        <p className="text-gray-600">Enregistrer un nouveau visiteur pour la résidence</p>
-      </div>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Ajouter des visiteurs</Text>
+        <Text style={styles.headerSubtitle}>Enregistrer plusieurs visiteurs pour un appartement</Text>
+      </View>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Visitor Information */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center space-x-2 mb-6">
-            <User className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Informations du visiteur</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* First Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Prénom *
-              </label>
-              <input
-                type="text"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.firstName ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="Entrez le prénom"
-              />
-              {errors.firstName && (
-                <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+      {/* Apartment Selection */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <User width={20} height={20} color={Colors.light.primary} />
+          <Text style={styles.sectionTitle}>Sélection de l'appartement</Text>
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Appartement *</Text>
+          <TextInput
+            style={[styles.input, errors.apartment && styles.inputError]}
+            value={apartmentSearch}
+            onChangeText={setApartmentSearch}
+            placeholder="Rechercher un appartement..."
+            placeholderTextColor={Colors.light.textMuted}
+          />
+          {errors.apartment && <Text style={styles.errorText}>{errors.apartment}</Text>}
+
+          {apartmentSearch && filteredApartments.length > 0 && (
+            <View style={styles.dropdown}>
+              <ScrollView style={styles.dropdownList}>
+                {filteredApartments.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.dropdownItem}
+                    onPress={() => handleApartmentSelect(item)}
+                  >
+                    <Text style={styles.dropdownText}>{item}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
+          {apartment && (
+            <View style={styles.selectedApartment}>
+              <Text style={styles.selectedText}>Appartement sélectionné: {apartment}</Text>
+            </View>
+          )}
+        </View>
+      </View>
+
+      {/* Visitors */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <View style={styles.visitorsHeader}>
+            <User width={20} height={20} color={Colors.light.primary} />
+            <Text style={styles.sectionTitle}>Visiteurs ({visitors.length})</Text>
+            <TouchableOpacity style={styles.addButton} onPress={addVisitor}>
+              <Plus width={16} height={16} color="white" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {visitors.map((visitor, index) => (
+          <View key={visitor.id} style={styles.visitorCard}>
+            <View style={styles.visitorHeader}>
+              <Text style={styles.visitorTitle}>Visiteur {index + 1}</Text>
+              {visitors.length > 1 && (
+                <TouchableOpacity
+                  style={styles.removeButton}
+                  onPress={() => removeVisitor(visitor.id)}
+                >
+                  <X width={16} height={16} color={Colors.light.error} />
+                </TouchableOpacity>
               )}
-            </div>
+            </View>
 
-            {/* Last Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nom *
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.lastName ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="Entrez le nom"
-              />
-              {errors.lastName && (
-                <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
-              )}
-            </div>
+            <View style={styles.grid}>
+              {/* Photo */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Photo</Text>
+                <TouchableOpacity style={styles.photoButton} onPress={() => selectPhoto(visitor.id)}>
+                  <View style={styles.photoPlaceholder}>
+                    <Text style={styles.photoText}>📷 Ajouter une photo</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
 
-            {/* Phone */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Phone className="w-4 h-4 inline mr-1" />
-                Téléphone *
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.phone ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="+33 6 12 34 56 78"
-              />
-              {errors.phone && (
-                <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
-              )}
-            </div>
-          </div>
-        </div>
+              {/* Name */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Nom complet *</Text>
+                <TextInput
+                  style={[styles.input, errors[`${visitor.id}-name`] && styles.inputError]}
+                  value={visitor.name}
+                  onChangeText={(value) => handleVisitorChange(visitor.id, 'name', value)}
+                  placeholder="Nom et prénom"
+                  placeholderTextColor={Colors.light.textMuted}
+                />
+                {errors[`${visitor.id}-name`] && <Text style={styles.errorText}>{errors[`${visitor.id}-name`]}</Text>}
+              </View>
 
-        {/* Visit Information */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center space-x-2 mb-6">
-            <Calendar className="w-5 h-5 text-green-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Informations de visite</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Visit Date */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date de visite *
-              </label>
-              <input
-                type="date"
-                name="visitDate"
-                value={formData.visitDate}
-                onChange={handleInputChange}
-                min={new Date().toISOString().split('T')[0]}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.visitDate ? 'border-red-300' : 'border-gray-300'
-                }`}
-              />
-              {errors.visitDate && (
-                <p className="mt-1 text-sm text-red-600">{errors.visitDate}</p>
-              )}
-            </div>
+              {/* Phone */}
+              <View style={styles.inputGroup}>
+                <View style={styles.labelContainer}>
+                  <Phone width={16} height={16} color={Colors.light.primary} />
+                  <Text style={styles.label}>Téléphone *</Text>
+                </View>
+                <TextInput
+                  style={[styles.input, errors[`${visitor.id}-phone`] && styles.inputError]}
+                  value={visitor.phone}
+                  onChangeText={(value) => handleVisitorChange(visitor.id, 'phone', value)}
+                  placeholder="+33 6 12 34 56 78"
+                  placeholderTextColor={Colors.light.textMuted}
+                  keyboardType="phone-pad"
+                />
+                {errors[`${visitor.id}-phone`] && <Text style={styles.errorText}>{errors[`${visitor.id}-phone`]}</Text>}
+              </View>
 
-            {/* Visit Time */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Clock className="w-4 h-4 inline mr-1" />
-                Heure de visite *
-              </label>
-              <input
-                type="time"
-                name="visitTime"
-                value={formData.visitTime}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.visitTime ? 'border-red-300' : 'border-gray-300'
-                }`}
-              />
-              {errors.visitTime && (
-                <p className="mt-1 text-sm text-red-600">{errors.visitTime}</p>
-              )}
-            </div>
+              {/* Time */}
+              <View style={styles.inputGroup}>
+                <View style={styles.labelContainer}>
+                  <Clock width={16} height={16} color={Colors.light.primary} />
+                  <Text style={styles.label}>Heure d'arrivée *</Text>
+                </View>
+                <TextInput
+                  style={[styles.input, errors[`${visitor.id}-time`] && styles.inputError]}
+                  value={visitor.time}
+                  onChangeText={(value) => handleVisitorChange(visitor.id, 'time', value)}
+                  placeholder="HH:MM"
+                  placeholderTextColor={Colors.light.textMuted}
+                />
+                {errors[`${visitor.id}-time`] && <Text style={styles.errorText}>{errors[`${visitor.id}-time`]}</Text>}
+              </View>
+            </View>
+          </View>
+        ))}
+      </View>
 
-            {/* Purpose */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <FileText className="w-4 h-4 inline mr-1" />
-                Motif de la visite *
-              </label>
-              <select
-                name="purpose"
-                value={formData.purpose}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.purpose ? 'border-red-300' : 'border-gray-300'
-                }`}
-              >
-                <option value="">Sélectionnez un motif</option>
-                <option value="Visite familiale">Visite familiale</option>
-                <option value="Ami">Ami</option>
-                <option value="Livraison">Livraison</option>
-                <option value="Travaux">Travaux</option>
-                <option value="Service technique">Service technique</option>
-                <option value="Professionnel de santé">Professionnel de santé</option>
-                <option value="Autre">Autre</option>
-              </select>
-              {errors.purpose && (
-                <p className="mt-1 text-sm text-red-600">{errors.purpose}</p>
-              )}
-            </div>
-          </div>
-        </div>
+      {/* Action Buttons */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+          <X width={16} height={16} color={Colors.light.text} />
+          <Text style={styles.cancelButtonText}>Annuler</Text>
+        </TouchableOpacity>
 
-        {/* Resident Information */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center space-x-2 mb-6">
-            <Home className="w-5 h-5 text-orange-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Résident concerné</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Resident Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nom du résident *
-              </label>
-              <input
-                type="text"
-                name="residentName"
-                value={formData.residentName}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.residentName ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="Nom du résident à visiter"
-              />
-              {errors.residentName && (
-                <p className="mt-1 text-sm text-red-600">{errors.residentName}</p>
-              )}
-            </div>
-
-            {/* Apartment */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Appartement *
-              </label>
-              <input
-                type="text"
-                name="apartment"
-                value={formData.apartment}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.apartment ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="Ex: Apt 304, Bât A-205"
-              />
-              {errors.apartment && (
-                <p className="mt-1 text-sm text-red-600">{errors.apartment}</p>
-              )}
-            </div>
-
-            {/* Notes */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Notes supplémentaires
-              </label>
-              <textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleInputChange}
-                rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Informations supplémentaires sur la visite..."
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-end space-x-4">
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 flex items-center space-x-2"
-          >
-            <X className="w-4 h-4" />
-            <span>Annuler</span>
-          </button>
-          
-          <button
-            type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
-          >
-            <Save className="w-4 h-4" />
-            <span>Enregistrer le visiteur</span>
-          </button>
-        </div>
-      </form>
-    </div>
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+          <Save width={16} height={16} color="white" />
+          <Text style={styles.submitButtonText}>Enregistrer  </Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.light.surface,
+  },
+  contentContainer: {
+    padding: 20,
+  },
+  header: {
+    marginBottom: 24,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: Colors.light.text,
+    marginBottom: 8,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: Colors.light.textSecondary,
+  },
+  section: {
+    backgroundColor: Colors.light.card,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+    shadowColor: Colors.light.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: Colors.light.text,
+    marginLeft: 8,
+  },
+  visitorsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flex: 1,
+  },
+  addButton: {
+    backgroundColor: Colors.light.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  visitorCard: {
+    backgroundColor: Colors.light.surface,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
+  },
+  visitorHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  visitorTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.light.text,
+  },
+  removeButton: {
+    padding: 4,
+  },
+  grid: {
+    gap: 16,
+  },
+  inputGroup: {
+    flex: 1,
+  },
+  fullWidth: {
+    width: '100%',
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.light.textSecondary,
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: Colors.light.text,
+    backgroundColor: Colors.light.surface,
+  },
+  inputError: {
+    borderColor: Colors.light.error,
+  },
+  dropdown: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.light.card,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    borderRadius: 8,
+    maxHeight: 200,
+    zIndex: 1000,
+    shadowColor: Colors.light.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  dropdownList: {
+    maxHeight: 200,
+  },
+  dropdownItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.borderLight,
+  },
+  dropdownText: {
+    fontSize: 16,
+    color: Colors.light.text,
+  },
+  selectedApartment: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: Colors.light.primaryLight,
+    borderRadius: 8,
+  },
+  selectedText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.light.primary,
+  },
+  errorText: {
+    fontSize: 12,
+    color: Colors.light.error,
+    marginTop: 4,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
+    marginTop: 24,
+  },
+  cancelButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    borderRadius: 8,
+    backgroundColor: Colors.light.surface,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    color: Colors.light.text,
+    marginLeft: 8,
+  },
+  submitButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    backgroundColor: Colors.light.primary,
+    borderRadius: 8,
+  },
+  submitButtonText: {
+    fontSize: 16,
+    color: 'white',
+    marginLeft: 8,
+  },
+  photoButton: {
+    backgroundColor: Colors.light.surface,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    borderRadius: 8,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 100,
+  },
+  photoPreview: {
+    width: '100%',
+    height: 100,
+    borderRadius: 8,
+  },
+  photoPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  photoText: {
+    fontSize: 14,
+    color: Colors.light.primary,
+    fontWeight: '500',
+  },
+});
