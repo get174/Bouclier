@@ -1,12 +1,15 @@
-# TODO: Redesign Visitors Component
+# TODO: Fix ScanControl.tsx React Native Compatibility
 
-## Tasks
-- [x] Import Colors from constants/Colors.ts
-- [x] Update container and listContent styles for more spacious layout
-- [x] Enhance header styles: larger title, better spacing, professional look
-- [x] Improve filtersCard: increase padding, better grid layout, use Colors
-- [x] Transform table layout to card-based layout for better organization
-- [x] Enhance status badges: use Colors, better shapes and colors
-- [x] Update action buttons: better styling with themed colors
-- [x] Improve empty state: more appealing design with title and subtitle
-- [x] Test the changes by running the app
+## Steps to Complete
+- [ ] Update imports to include React Native components (View, Text, TouchableOpacity, StyleSheet)
+- [ ] Create StyleSheet object with equivalent styles for all className attributes
+- [ ] Replace HTML elements with React Native components:
+  - Replace `<div>` with `<View>`
+  - Replace `<h1>`, `<h3>`, `<p>` with `<Text>`
+  - Replace `<button>` with `<TouchableOpacity>`
+- [ ] Convert `className` to `style` props using the StyleSheet
+- [ ] Change `onClick` to `onPress` for buttons
+- [ ] Adjust icon components to use `style` instead of `className`
+- [ ] Handle layout (e.g., grid-cols) with flexbox properties
+- [ ] Run the app to verify the scan control screen renders without errors
+- [ ] Test scan functionality if possible

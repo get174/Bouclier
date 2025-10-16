@@ -1,5 +1,6 @@
+import { CheckCircle, Clock, MapPin, Phone, ScanLine, User, XCircle } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { ScanLine, CheckCircle, XCircle, Clock, User, Phone, MapPin } from 'lucide-react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface ScannedVisitor {
   id: string;
@@ -60,208 +61,543 @@ export default function ScanControl() {
   };
 
   return (
-    <div className="space-y-6">
+    <View style={styles.container}>
       {/* Header */}
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900">Scan & Contrôle daccès</h1>
-        <p className="text-gray-600">Scanner le QR code du visiteur pour valider son accès</p>
-      </div>
+      <View style={styles.header}>
+        <Text style={styles.title}>Scan & Contrôle d'accès</Text>
+        <Text style={styles.subtitle}>Scanner le QR code du visiteur pour valider son accès</Text>
+      </View>
 
       {/* Scan Interface */}
-      <div className="max-w-2xl mx-auto">
+      <View style={styles.scanInterface}>
         {/* Scan Area */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-          <div className="text-center">
+        <View style={styles.scanArea}>
+          <View style={styles.scanContent}>
             {!isScanning && !scannedVisitor && (
-              <div className="space-y-6">
-                <div className="w-32 h-32 mx-auto bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-                  <ScanLine className="w-16 h-16 text-gray-400" />
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <View style={styles.scanReady}>
+                <View style={styles.scanIconContainer}>
+                  <ScanLine style={styles.scanIcon} />
+                </View>
+
+                <View style={styles.scanTextContainer}>
+                  <Text style={styles.scanHeading}>
                     Prêt à scanner
-                  </h3>
-                  <p className="text-gray-600 mb-6">
+                  </Text>
+                  <Text style={styles.scanDescription}>
                     Cliquez sur le bouton pour activer le scanner QR code
-                  </p>
-                  
-                  <button
-                    onClick={handleScan}
-                    className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                  </Text>
+
+                  <TouchableOpacity
+                    onPress={handleScan}
+                    style={styles.scanButton}
                   >
-                    Démarrer le scan
-                  </button>
-                </div>
-              </div>
+                    <Text style={styles.scanButtonText}>Démarrer le scan</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             )}
 
             {isScanning && (
-              <div className="space-y-6">
-                <div className="w-32 h-32 mx-auto bg-blue-50 rounded-lg flex items-center justify-center border-2 border-blue-300 animate-pulse">
-                  <ScanLine className="w-16 h-16 text-blue-600 animate-pulse" />
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-900 mb-2">
+              <View style={styles.scanning}>
+                <View style={styles.scanningIconContainer}>
+                  <ScanLine style={styles.scanningIcon} />
+                </View>
+
+                <View style={styles.scanningTextContainer}>
+                  <Text style={styles.scanningHeading}>
                     Scan en cours...
-                  </h3>
-                  <p className="text-blue-600">
+                  </Text>
+                  <Text style={styles.scanningDescription}>
                     Positionnez le QR code devant la caméra
-                  </p>
-                </div>
-              </div>
+                  </Text>
+                </View>
+              </View>
             )}
 
             {scannedVisitor && !accessDecision && (
-              <div className="space-y-6">
+              <View style={styles.visitorInfo}>
                 {/* Visitor Info Card */}
-                <div className="bg-gray-50 rounded-lg p-6 text-left">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
+                <View style={styles.visitorCard}>
+                  <View style={styles.visitorHeader}>
+                    <Text style={styles.visitorTitle}>
                       Informations du visiteur
-                    </h3>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      scannedVisitor.status === 'approved' 
-                        ? 'bg-green-100 text-green-800'
-                        : scannedVisitor.status === 'pending'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {scannedVisitor.status === 'approved' ? 'Pré-approuvé' : 
-                       scannedVisitor.status === 'pending' ? 'En attente' : 'Refusé'}
-                    </span>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <User className="w-4 h-4 text-gray-400" />
-                      <span>
-                        <strong>{scannedVisitor.firstName} {scannedVisitor.lastName}</strong>
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Phone className="w-4 h-4 text-gray-400" />
-                      <span>{scannedVisitor.phone}</span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      <span>{scannedVisitor.residentName} - {scannedVisitor.apartment}</span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Clock className="w-4 h-4 text-gray-400" />
-                      <span>
+                    </Text>
+                    <View style={[
+                      styles.statusBadge,
+                      scannedVisitor.status === 'approved' ? styles.statusApproved :
+                      scannedVisitor.status === 'pending' ? styles.statusPending : styles.statusRejected
+                    ]}>
+                      <Text style={styles.statusText}>
+                        {scannedVisitor.status === 'approved' ? 'Pré-approuvé' :
+                         scannedVisitor.status === 'pending' ? 'En attente' : 'Refusé'}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.visitorDetails}>
+                    <View style={styles.detailRow}>
+                      <User style={styles.detailIcon} />
+                      <Text style={styles.detailText}>
+                        <Text style={styles.detailBold}>{scannedVisitor.firstName} {scannedVisitor.lastName}</Text>
+                      </Text>
+                    </View>
+
+                    <View style={styles.detailRow}>
+                      <Phone style={styles.detailIcon} />
+                      <Text style={styles.detailText}>{scannedVisitor.phone}</Text>
+                    </View>
+
+                    <View style={styles.detailRow}>
+                      <MapPin style={styles.detailIcon} />
+                      <Text style={styles.detailText}>{scannedVisitor.residentName} - {scannedVisitor.apartment}</Text>
+                    </View>
+
+                    <View style={styles.detailRow}>
+                      <Clock style={styles.detailIcon} />
+                      <Text style={styles.detailText}>
                         {new Date(scannedVisitor.visitDate).toLocaleDateString('fr-FR')} à {scannedVisitor.visitTime}
-                      </span>
-                    </div>
-                    
-                    <div className="md:col-span-2">
-                      <strong>Motif:</strong> {scannedVisitor.purpose}
-                    </div>
-                  </div>
-                </div>
+                      </Text>
+                    </View>
+
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailBold}>Motif:</Text>
+                      <Text style={styles.detailText}> {scannedVisitor.purpose}</Text>
+                    </View>
+                  </View>
+                </View>
 
                 {/* Access Control Buttons */}
-                <div className="flex justify-center space-x-4">
-                  <button
-                    onClick={() => handleAccessDecision('denied')}
-                    className="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium flex items-center space-x-2"
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity
+                    onPress={() => handleAccessDecision('denied')}
+                    style={styles.denyButton}
                   >
-                    <XCircle className="w-5 h-5" />
-                    <span>Refuser l&apos;accès</span>
-                  </button>
-                  
-                  <button
-                    onClick={() => handleAccessDecision('granted')}
-                    className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium flex items-center space-x-2"
+                    <XCircle style={styles.buttonIcon} />
+                    <Text style={styles.denyButtonText}>Refuser l'accès</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => handleAccessDecision('granted')}
+                    style={styles.grantButton}
                   >
-                    <CheckCircle className="w-5 h-5" />
-                    <span>Autoriser l&apos;accès</span>
-                  </button>
-                </div>
-              </div>
+                    <CheckCircle style={styles.buttonIcon} />
+                    <Text style={styles.grantButtonText}>Autoriser l'accès</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             )}
 
             {accessDecision && (
-              <div className="space-y-6">
-                <div className={`w-32 h-32 mx-auto rounded-lg flex items-center justify-center ${
-                  accessDecision === 'granted' ? 'bg-green-50 border-2 border-green-300' : 'bg-red-50 border-2 border-red-300'
-                }`}>
+              <View style={styles.decisionResult}>
+                <View style={[
+                  styles.decisionIconContainer,
+                  accessDecision === 'granted' ? styles.decisionGranted : styles.decisionDenied
+                ]}>
                   {accessDecision === 'granted' ? (
-                    <CheckCircle className="w-16 h-16 text-green-600" />
+                    <CheckCircle style={styles.decisionIcon} />
                   ) : (
-                    <XCircle className="w-16 h-16 text-red-600" />
+                    <XCircle style={styles.decisionIcon} />
                   )}
-                </div>
-                
-                <div>
-                  <h3 className={`text-xl font-bold mb-2 ${
-                    accessDecision === 'granted' ? 'text-green-900' : 'text-red-900'
-                  }`}>
+                </View>
+
+                <View style={styles.decisionTextContainer}>
+                  <Text style={[
+                    styles.decisionTitle,
+                    accessDecision === 'granted' ? styles.decisionTitleGranted : styles.decisionTitleDenied
+                  ]}>
                     {accessDecision === 'granted' ? 'Accès autorisé' : 'Accès refusé'}
-                  </h3>
-                  
-                  <p className={`text-lg ${
-                    accessDecision === 'granted' ? 'text-green-700' : 'text-red-700'
-                  }`}>
-                    {accessDecision === 'granted' 
+                  </Text>
+
+                  <Text style={[
+                    styles.decisionMessage,
+                    accessDecision === 'granted' ? styles.decisionMessageGranted : styles.decisionMessageDenied
+                  ]}>
+                    {accessDecision === 'granted'
                       ? 'Le visiteur peut entrer dans la résidence'
                       : 'Le visiteur ne peut pas accéder à la résidence'
                     }
-                  </p>
-                  
-                  <p className="text-sm text-gray-500 mt-4">
+                  </Text>
+
+                  <Text style={styles.decisionCountdown}>
                     Retour automatique dans 3 secondes...
-                  </p>
-                </div>
-              </div>
+                  </Text>
+                </View>
+              </View>
             )}
-          </div>
-        </div>
+          </View>
+        </View>
 
         {/* Manual Controls */}
         {!isScanning && (
-          <div className="mt-6 text-center">
-            <button
-              onClick={resetScan}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm font-medium"
+          <View style={styles.manualControls}>
+            <TouchableOpacity
+              onPress={resetScan}
+              style={styles.resetButton}
             >
-              Réinitialiser le scanner
-            </button>
-          </div>
+              <Text style={styles.resetButtonText}>Réinitialiser le scanner</Text>
+            </TouchableOpacity>
+          </View>
         )}
-      </div>
+      </View>
 
       {/* Recent Scans */}
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Activité récente</h2>
-          
-          <div className="space-y-3">
+      <View style={styles.recentScans}>
+        <View style={styles.recentScansCard}>
+          <Text style={styles.recentScansTitle}>Activité récente</Text>
+
+          <View style={styles.activityList}>
             {[
               { name: 'Marie Legrand', action: 'Accès autorisé', time: '14:23', status: 'granted' },
               { name: 'Pierre Durand', action: 'Accès refusé', time: '13:45', status: 'denied' },
               { name: 'Sophie Martin', action: 'Accès autorisé', time: '12:10', status: 'granted' },
             ].map((activity, index) => (
-              <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-3 h-3 rounded-full ${
-                    activity.status === 'granted' ? 'bg-green-500' : 'bg-red-500'
-                  }`} />
-                  <div>
-                    <span className="font-medium text-gray-900">{activity.name}</span>
-                    <span className="text-gray-500 ml-2">{activity.action}</span>
-                  </div>
-                </div>
-                <span className="text-sm text-gray-500">{activity.time}</span>
-              </div>
+              <View key={index} style={styles.activityItem}>
+                <View style={styles.activityLeft}>
+                  <View style={[
+                    styles.activityDot,
+                    activity.status === 'granted' ? styles.activityDotGranted : styles.activityDotDenied
+                  ]} />
+                  <View style={styles.activityTextContainer}>
+                    <Text style={styles.activityName}>{activity.name}</Text>
+                    <Text style={styles.activityAction}>{activity.action}</Text>
+                  </View>
+                </View>
+                <Text style={styles.activityTime}>{activity.time}</Text>
+              </View>
             ))}
-          </div>
-        </div>
-      </div>
-    </div>
+          </View>
+        </View>
+      </View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 24,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  subtitle: {
+    color: '#6B7280',
+  },
+  scanInterface: {
+    maxWidth: 512,
+    alignSelf: 'center',
+  },
+  scanArea: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 24,
+  },
+  scanContent: {
+    alignItems: 'center',
+  },
+  scanReady: {
+    gap: 24,
+  },
+  scanIconContainer: {
+    width: 128,
+    height: 128,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: '#D1D5DB',
+  },
+  scanIcon: {
+    width: 64,
+    height: 64,
+    color: '#9CA3AF',
+  },
+  scanTextContainer: {
+    alignItems: 'center',
+  },
+  scanHeading: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  scanDescription: {
+    color: '#6B7280',
+    marginBottom: 24,
+  },
+  scanButton: {
+    backgroundColor: '#2563EB',
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  scanButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '500',
+  },
+  scanning: {
+    gap: 24,
+  },
+  scanningIconContainer: {
+    width: 128,
+    height: 128,
+    backgroundColor: '#EFF6FF',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#3B82F6',
+  },
+  scanningIcon: {
+    width: 64,
+    height: 64,
+    color: '#2563EB',
+  },
+  scanningTextContainer: {
+    alignItems: 'center',
+  },
+  scanningHeading: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1E40AF',
+    marginBottom: 8,
+  },
+  scanningDescription: {
+    color: '#2563EB',
+  },
+  visitorInfo: {
+    gap: 24,
+  },
+  visitorCard: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 8,
+    padding: 24,
+  },
+  visitorHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  visitorTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 9999,
+  },
+  statusApproved: {
+    backgroundColor: '#ECFDF5',
+  },
+  statusPending: {
+    backgroundColor: '#FFFBEB',
+  },
+  statusRejected: {
+    backgroundColor: '#FEF2F2',
+  },
+  statusText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  visitorDetails: {
+    gap: 16,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  detailIcon: {
+    width: 16,
+    height: 16,
+    color: '#9CA3AF',
+  },
+  detailText: {
+    fontSize: 14,
+    color: '#374151',
+  },
+  detailBold: {
+    fontWeight: 'bold',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 16,
+  },
+  denyButton: {
+    backgroundColor: '#DC2626',
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  denyButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '500',
+  },
+  grantButton: {
+    backgroundColor: '#16A34A',
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  grantButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '500',
+  },
+  buttonIcon: {
+    width: 20,
+    height: 20,
+  },
+  decisionResult: {
+    gap: 24,
+  },
+  decisionIconContainer: {
+    width: 128,
+    height: 128,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+  },
+  decisionGranted: {
+    backgroundColor: '#ECFDF5',
+    borderColor: '#10B981',
+  },
+  decisionDenied: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#EF4444',
+  },
+  decisionIcon: {
+    width: 64,
+    height: 64,
+  },
+  decisionTextContainer: {
+    alignItems: 'center',
+  },
+  decisionTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  decisionTitleGranted: {
+    color: '#065F46',
+  },
+  decisionTitleDenied: {
+    color: '#991B1B',
+  },
+  decisionMessage: {
+    fontSize: 18,
+    marginBottom: 16,
+  },
+  decisionMessageGranted: {
+    color: '#047857',
+  },
+  decisionMessageDenied: {
+    color: '#DC2626',
+  },
+  decisionCountdown: {
+    fontSize: 14,
+    color: '#9CA3AF',
+  },
+  manualControls: {
+    marginTop: 24,
+    alignItems: 'center',
+  },
+  resetButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  resetButtonText: {
+    color: '#6B7280',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  recentScans: {
+    maxWidth: 1024,
+    alignSelf: 'center',
+  },
+  recentScansCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 24,
+  },
+  recentScansTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 16,
+  },
+  activityList: {
+    gap: 12,
+  },
+  activityItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  activityLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  activityDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  activityDotGranted: {
+    backgroundColor: '#10B981',
+  },
+  activityDotDenied: {
+    backgroundColor: '#EF4444',
+  },
+  activityTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  activityName: {
+    fontWeight: '500',
+    color: '#111827',
+  },
+  activityAction: {
+    color: '#6B7280',
+  },
+  activityTime: {
+    fontSize: 14,
+    color: '#9CA3AF',
+  },
+});
