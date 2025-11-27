@@ -1,11 +1,13 @@
 import { ActionCard } from '@/components/ActionCard';
 import { NoticeCard } from '@/components/NoticeCard';
+import { ResidentHeader } from '@/components/ResidentHeader';
 import { UpcomingEventCard } from '@/components/UpcomingEventCard';
 import { Colors } from '@/constants/Colors';
-import { API_BASE_URL } from '../../constants/Config';
-import { Package, Receipt, PenTool as Tool, UserCheck } from 'lucide-react-native';
+import { PenTool as Tool, UserCheck } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { API_BASE_URL } from '../../constants/Config';
+import { useMenu } from '../../contexts/MenuContext';
 import AuthService from '../../services/authService';
 
 interface UserData {
@@ -18,6 +20,7 @@ interface UserData {
 }
 
 export default function HomeScreen() {
+  const { toggleMenu } = useMenu();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [apartmentNumber, setApartmentNumber] = useState<string>('');
@@ -88,7 +91,9 @@ export default function HomeScreen() {
   ];
 
   return (
-    <ScrollView style={styles.scrollContainer}>
+    <View style={{ flex: 1 }}>
+      <ResidentHeader title="Accueil" subtitle="Bouclier" onMenuPress={toggleMenu} />
+      <ScrollView style={styles.scrollContainer}>
       <View style={styles.profileSection}>
         <View style={styles.profileContent}>
           <View style={styles.userInfo}>
@@ -108,9 +113,7 @@ export default function HomeScreen() {
         <Text style={styles.sectionTitle}>Actions Rapides</Text>
         <View style={styles.actionGrid}>
           <ActionCard href="/resident/visitors/add_visitors" icon={UserCheck} text="Ajouter Visiteur" />
-          <ActionCard href="/resident/livraison/DeliveriesListScreen" icon={Package} text="Livraisons" />
           <ActionCard href="/resident/depanage/depanage" icon={Tool} text="Dépannage" />
-          <ActionCard href="/resident/paiment/AddPaymentScreen" icon={Receipt} text="Paiements" />
         </View>
       </View>
 
@@ -133,6 +136,7 @@ export default function HomeScreen() {
         ))}
       </View>
     </ScrollView>
+    </View>
   );
 }
 

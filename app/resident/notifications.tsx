@@ -4,6 +4,8 @@ import { Bell } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ResidentHeader } from '../../components/ResidentHeader';
+import { useMenu } from '../../contexts/MenuContext';
 import { getNotifications, getUnreadNotificationsCount } from '../../services/apiService';
 import authService from '../../services/authService';
 
@@ -46,6 +48,7 @@ export default function NotificationsScreen() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { toggleMenu } = useMenu();
 
   const fetchData = useCallback(async () => {
     const userData = await authService.getUserData();
@@ -92,12 +95,9 @@ export default function NotificationsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>
-          Notifications {unreadCount > 0 ? `(${unreadCount})` : ''}
-        </Text>
-      </View>
+    <View style={{ flex: 1 }}>
+      <ResidentHeader title="Notifications" subtitle="Bouclier" onMenuPress={toggleMenu} />
+      <SafeAreaView style={styles.safeArea}>
       <FlatList
         data={notifications}
         renderItem={({ item }) => <NotificationItem item={item} />}
@@ -109,6 +109,7 @@ export default function NotificationsScreen() {
         }
       />
     </SafeAreaView>
+    </View>
   );
 }
 
@@ -116,6 +117,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f1f5f9',
+  },
+  menuButton: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    zIndex: 1,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 8,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  safeArea: {
+    flex: 1,
   },
   header: {
     backgroundColor: '#ffffff',

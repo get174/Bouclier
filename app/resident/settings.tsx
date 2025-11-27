@@ -1,12 +1,13 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { Bell, ChevronRight, HelpCircle, Home, LogOut, Shield, User } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ResidentHeader } from '../../components/ResidentHeader';
+import { API_BASE_URL } from '../../constants/Config';
+import { useMenu } from '../../contexts/MenuContext';
 import { useTheme } from '../../hooks/useTheme';
 import AuthService from '../../services/authService';
-import { API_BASE_URL } from '../../constants/Config';
 
 interface SettingItem {
   icon: React.ElementType;
@@ -49,6 +50,7 @@ const getSettingsSections = (isDark: boolean): { title: string; items: SettingIt
 export default function SettingsScreen() {
   const router = useRouter();
   const { colors, themeMode, setThemeMode, toggleTheme } = useTheme();
+  const { toggleMenu } = useMenu();
   const [loading, setLoading] = useState(true);
   const [fullName, setFullName] = useState('');
   const [apartmentNumber, setApartmentNumber] = useState('');
@@ -136,68 +138,68 @@ export default function SettingsScreen() {
   const dynamicStyles = styles(colors);
 
   return (
-    <ScrollView style={dynamicStyles.container}>
-      <LinearGradient
-        colors={['#0f766e', '#0d9488']}
-        style={dynamicStyles.profileHeader}
-      >
-        {loading ? (
-          <ActivityIndicator size="large" color="#ffffff" />
-        ) : (
-          <>
-            <View style={dynamicStyles.profileImageContainer}>
-              <View style={dynamicStyles.profileImage}>
-                <Text style={dynamicStyles.profileInitials}>{fullName ? fullName.charAt(0) : ''}</Text>
+    <View style={{ flex: 1 }}>
+      <ResidentHeader title="Paramètres" subtitle="Bouclier" onMenuPress={toggleMenu} />
+      <ScrollView style={dynamicStyles.scrollContainer}>
+        <View style={dynamicStyles.profileSection}>
+          {loading ? (
+            <ActivityIndicator size="large" color="#1e293b" />
+          ) : (
+            <>
+              <View style={dynamicStyles.profileImageContainer}>
+                <View style={dynamicStyles.profileImage}>
+                  <Text style={dynamicStyles.profileInitials}>{fullName ? fullName.charAt(0) : ''}</Text>
+                </View>
               </View>
-            </View>
-            <View style={dynamicStyles.profileInfo}>
-              <Text style={dynamicStyles.profileName}>{fullName}</Text>
-              <Text style={dynamicStyles.profileUnit}>
-                {buildingName} {blockName && `- ${blockName}`} {apartmentNumber && `- Apt ${apartmentNumber}`}
-              </Text>
-            </View>
-          </>
-        )}
-      </LinearGradient>
-
-      {getSettingsSections(themeMode === 'dark').map((section, index) => (
-        <View key={index} style={dynamicStyles.section}>
-          <Text style={dynamicStyles.sectionTitle}>{section.title}</Text>
-          <View style={dynamicStyles.sectionContent}>
-            {section.items.map((item, itemIndex) => {
-              const Icon = item.icon;
-              const isLastItem = itemIndex === section.items.length - 1;
-              return (
-                <Pressable
-                  key={itemIndex}
-                  style={[dynamicStyles.settingItem, isLastItem && dynamicStyles.noBorder]}
-                  onPress={() => handlePress(item)}
-                >
-                  <View style={dynamicStyles.settingItemLeft}>
-                    <Icon size={20} color={colors.secondary} />
-                    <Text style={dynamicStyles.settingItemLabel}>{item.label}</Text>
-                  </View>
-                  <ChevronRight size={20} color={colors.textMuted} />
-                </Pressable>
-              );
-            })}
-          </View>
+              <View style={dynamicStyles.profileInfo}>
+                <Text style={dynamicStyles.profileName}>{fullName}</Text>
+                <Text style={dynamicStyles.profileUnit}>
+                  {buildingName} {blockName && `- ${blockName}`} {apartmentNumber && `- Apt ${apartmentNumber}`}
+                </Text>
+              </View>
+            </>
+          )}
         </View>
-      ))}
-    </ScrollView>
+
+        {getSettingsSections(themeMode === 'dark').map((section, index) => (
+          <View key={index} style={dynamicStyles.section}>
+            <Text style={dynamicStyles.sectionTitle}>{section.title}</Text>
+            <View style={dynamicStyles.sectionContent}>
+              {section.items.map((item, itemIndex) => {
+                const Icon = item.icon;
+                const isLastItem = itemIndex === section.items.length - 1;
+                return (
+                  <Pressable
+                    key={itemIndex}
+                    style={[dynamicStyles.settingItem, isLastItem && dynamicStyles.noBorder]}
+                    onPress={() => handlePress(item)}
+                  >
+                    <View style={dynamicStyles.settingItemLeft}>
+                      <Icon size={20} color={colors.secondary} />
+                      <Text style={dynamicStyles.settingItemLabel}>{item.label}</Text>
+                    </View>
+                    <ChevronRight size={20} color={colors.textMuted} />
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = (colors: any) => StyleSheet.create({
-  container: {
+  scrollContainer: {
     flex: 1,
     backgroundColor: colors.surface,
   },
-  profileHeader: {
-    paddingVertical: 30,
-    paddingHorizontal: 20,
+  profileSection: {
+    backgroundColor: '#f8fafc',
+    padding: 20,
     alignItems: 'center',
-    minHeight: 220, // Hauteur minimale pour accommoder l'indicateur de chargement
+    minHeight: 220,
     justifyContent: 'center',
   },
   profileImageContainer: {

@@ -1,25 +1,23 @@
-import 'dotenv/config';
-import mongoose from 'mongoose';
-import express from 'express';
 import cors from 'cors';
+import 'dotenv/config';
+import express from 'express';
+import mongoose from 'mongoose';
 import path from 'path';
-import checkEmail from './routes/checkEmail.js';
-import sendOtp from './routes/sendOtp.js';
-import verifyOtp from './routes/verifyOtp.js';
-import setPassword from './routes/setPassword.js';
-import login from './routes/login.js';
-import auth from './routes/auth.js';
-import refreshToken from './routes/refreshToken.js';
-import updateProfile from './routes/updateProfile.js';
-import buildingsRouter from './routes/buildings.js';
 import apartmentsRouter from './routes/apartments.js';
+import auth from './routes/auth.js';
 import blocksRouter from './routes/blocks.js';
-import visitorsRoute from './routes/visitors.js';
-import deliveriesRoute from './routes/deliveries.js';
-import repairsRoute from './routes/repairs.js';
-import paymentsRoute from './routes/payments.js';
-import userBuildingRoute from './routes/userBuilding.js';
+import buildingsRouter from './routes/buildings.js';
+import checkEmail from './routes/checkEmail.js';
+import login from './routes/login.js';
 import notificationsRoute from './routes/notifications.js';
+import refreshToken from './routes/refreshToken.js';
+import repairsRoute from './routes/repairs.js';
+import sendOtp from './routes/sendOtp.js';
+import setPassword from './routes/setPassword.js';
+import updateProfile from './routes/updateProfile.js';
+import userBuildingRoute from './routes/userBuilding.js';
+import verifyOtp from './routes/verifyOtp.js';
+import visitorsRoute from './routes/visitors.js';
 const app = express();
 
 app.use(cors());
@@ -49,9 +47,9 @@ app.use('/api/update-profile', updateProfile);
 
 // Les routes plus spécifiques d'abord, puis les routes génériques
 app.use('/api/visitors', visitorsRoute);
-app.use('/api/deliveries', deliveriesRoute);
+
 app.use('/api/repairs', repairsRoute);
-app.use('/api/payments', paymentsRoute);
+
 app.use('/api/buildings', buildingsRouter);
 app.use('/api/blocks', blocksRouter);
 app.use('/api/user', userBuildingRoute);

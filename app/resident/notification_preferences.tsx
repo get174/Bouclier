@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, Alert, ActivityIndicator } from 'react-native';
-import apiService from '../../services/apiService'; // Assurez-vous que le chemin est correct
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, StyleSheet, Switch, Text, View } from 'react-native';
 
 // Interface pour les préférences de notification
 interface NotificationPreferences {
@@ -77,7 +76,7 @@ export default function NotificationPreferencesScreen() {
         <View style={styles.item}>
           <View style={styles.itemTextContainer}>
             <Text style={styles.itemTitle}>Alertes de visiteurs</Text>
-            <Text style={styles.itemDescription}>Recevoir une notification à l'arrivée d'un visiteur.</Text>
+            <Text style={styles.itemDescription}>Recevoir une notification à l&apos;arrivée d&apos;un visiteur.</Text>
           </View>
           <Switch
             trackColor={{ false: '#e2e8f0', true: '#14b8a6' }}
@@ -103,7 +102,7 @@ export default function NotificationPreferencesScreen() {
         <View style={[styles.item, styles.noBorder]}>
           <View style={styles.itemTextContainer}>
             <Text style={styles.itemTitle}>Confirmations de réservation</Text>
-            <Text style={styles.itemDescription}>Recevoir des rappels pour vos réservations d'équipements.</Text>
+            <Text style={styles.itemDescription}>Recevoir des rappels pour vos réservations d&apos;équipements.</Text>
           </View>
           <Switch
             trackColor={{ false: '#e2e8f0', true: '#14b8a6' }}

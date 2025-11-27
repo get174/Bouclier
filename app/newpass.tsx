@@ -81,7 +81,7 @@ export default function NewPass() {
       } else {
         showAlert("Erreur", data.message || "Une erreur est survenue.", "error");
       }
-    } catch (error) {
+    } catch (_error) {
       showAlert("Erreur", "Impossible de contacter le serveur.", "error");
     } finally {
       setLoading(false);

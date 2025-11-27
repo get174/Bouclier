@@ -20,11 +20,7 @@ export default function DisplayBuilding() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchBuildings();
-  }, []);
-
-  const fetchBuildings = async () => {
+  const fetchBuildings = React.useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -67,7 +63,11 @@ export default function DisplayBuilding() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router, showAlert]);
+
+  useEffect(() => {
+    fetchBuildings();
+  }, [fetchBuildings]);
 
   const handleBuildingSelect = async (building: BuildingType) => {
     try {

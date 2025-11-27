@@ -22,11 +22,11 @@ export function ResidentHeader({ title, subtitle, onMenuPress, showBackButton = 
       <View style={styles.headerContent}>
         {showBackButton ? (
           <TouchableOpacity style={styles.menuButton} onPress={() => router.back()}>
-            <ArrowLeft size={28} color="#ffffff" />
+            <ArrowLeft size={28} color="#ffffffff" />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.menuButton} onPress={onMenuPress}>
-            <Menu size={28} color="#ffffff" />
+            <Menu size={28} color="#fafafaff" />
           </TouchableOpacity>
         )}
         
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 20,
     elevation: 8,
-    shadowColor: '#000',
+    shadowColor: '#000000ff',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,

@@ -1,7 +1,7 @@
 
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react-native";
+import { Eye, EyeOff } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -28,8 +28,6 @@ export default function Login() {
   const [infoMessage, setInfoMessage] = useState("");
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [showOtpButton, setShowOtpButton] = useState(false);
-  const [hasPassword, setHasPassword] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
 
@@ -304,17 +302,10 @@ export default function Login() {
     setSecureTextEntry(!secureTextEntry);
   };
 
-  const handleBack = () => {
-    router.back();
-  };
-
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#008000" barStyle="light-content" />
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-          <ArrowLeft size={24} color="#000" />
-        </TouchableOpacity>
         <Text style={styles.title}>Connexion</Text>
       </View>
       <View style={styles.banner}>

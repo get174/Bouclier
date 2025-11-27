@@ -55,12 +55,12 @@ export default function AddVisitor() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!apartment.trim()) newErrors.apartment = 'L\'appartement est requis';
+    if (!apartment.trim()) newErrors.apartment = 'L&apos;appartement est requis';
 
     visitors.forEach(visitor => {
       if (!visitor.name.trim()) newErrors[`${visitor.id}-name`] = 'Le nom est requis';
       if (!visitor.phone.trim()) newErrors[`${visitor.id}-phone`] = 'Le téléphone est requis';
-      if (!visitor.time.trim()) newErrors[`${visitor.id}-time`] = 'L\'heure est requise';
+      if (!visitor.time.trim()) newErrors[`${visitor.id}-time`] = 'L&#39;heure est requise';
 
       // Phone validation
       if (visitor.phone && !/^(\+33|0)[1-9](\s?\d{2}){4}$/.test(visitor.phone.replace(/\s/g, ''))) {
@@ -107,7 +107,7 @@ export default function AddVisitor() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <User width={20} height={20} color={Colors.light.primary} />
-          <Text style={styles.sectionTitle}>Sélection de l'appartement</Text>
+          <Text style={styles.sectionTitle}>Sélection de l&apos;appartement</Text>
         </View>
 
         <View style={styles.inputGroup}>

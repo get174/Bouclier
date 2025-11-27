@@ -17,7 +17,7 @@ interface Apartment {
 export default function DisplayFlat() {
   const router = useRouter();
   const { showAlert } = useCustomAlert();
-  const { blockId, blockName } = useLocalSearchParams<{ blockId: string; blockName: string }>();
+  const { blockId } = useLocalSearchParams<{ blockId: string; blockName?: string }>();
   const [searchText, setSearchText] = useState('');
   const [apartments, setApartments] = useState<Apartment[]>([]);
   const [loading, setLoading] = useState(true);

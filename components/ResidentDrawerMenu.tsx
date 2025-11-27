@@ -1,24 +1,16 @@
 import { Link, useRouter } from 'expo-router';
 import {
-  Archive,
   ChevronDown,
   ChevronUp,
-  ClipboardList,
   Clock,
-  CreditCard,
   FileText,
-  History as HistoryIcon,
   LogOut,
-  Package,
-  PackagePlus,
-  PlusCircle,
   QrCode,
-  Receipt,
   Send,
   User,
   UserCheck,
   Users,
-  Wrench,
+  Wrench
 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
@@ -49,9 +41,8 @@ export function ResidentDrawerMenu({ isVisible, onClose }: ResidentDrawerMenuPro
   const router = useRouter();
   const [profileExpanded, setProfileExpanded] = useState(false);
   const [visitorExpanded, setVisitorExpanded] = useState(false);
-  const [deliveryExpanded, setDeliveryExpanded] = useState(false);
   const [depannageExpanded, setDepannageExpanded] = useState(false);
-  const [paymentExpanded, setPaymentExpanded] = useState(false);
+
   const [fullName, setFullName] = useState<string>(''); // State for user's full name
   const [apartmentNumber, setApartmentNumber] = useState<string>(''); // State for apartment number
   const [blockName, setBlockName] = useState<string>(''); // State for block name
@@ -251,53 +242,7 @@ export function ResidentDrawerMenu({ isVisible, onClose }: ResidentDrawerMenuPro
               )}
             </View>
 
-            {/* Livraison section */}
-            <View style={styles.menuSection}>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => setDeliveryExpanded(!deliveryExpanded)}
-              >
-                <View style={styles.menuItemContent}>
-                  <Package size={20} color="#0891b2" />
-                  <Text style={styles.menuItemText}>Livraison</Text>
-                </View>
-                {deliveryExpanded ? (
-                  <ChevronUp size={20} color="#0891b2" />
-                ) : (
-                  <ChevronDown size={20} color="#0891b2" />
-                )}
-              </TouchableOpacity>
-              {deliveryExpanded && (
-                <View style={styles.subMenu}>
-                  <Link href="/resident/livraison/AddDeliveryScreen" asChild>
-                    <TouchableOpacity style={styles.subMenuItem} onPress={onClose}>
-                      <View style={styles.subMenuContent}>
-                        <PackagePlus size={16} color="#0891b2" />
-                        <Text style={styles.subMenuText}>Nouvelle livraison</Text>
-                      </View>
-                    </TouchableOpacity>
-                  </Link>
-                
-                  <Link href="/resident/livraison/DeliveryScreen" asChild>
-                    <TouchableOpacity style={styles.subMenuItem} onPress={onClose}>
-                      <View style={styles.subMenuContent}>
-                        <ClipboardList size={16} color="#0891b2" />
-                        <Text style={styles.subMenuText}>Détails de livraison</Text>
-                      </View>
-                    </TouchableOpacity>
-                  </Link>
-                  <Link href="/resident/livraison/DeliveryScreen" asChild>
-                    <TouchableOpacity style={styles.subMenuItem} onPress={onClose}>
-                      <View style={styles.subMenuContent}>
-                        <Archive size={16} color="#0891b2" />
-                        <Text style={styles.subMenuText}>Mes livraison</Text>
-                      </View>
-                    </TouchableOpacity>
-                  </Link>
-                
-                </View>
-              )}
-            </View>
+         
 
             {/* Dépannage section */}
             <View style={styles.menuSection}>
@@ -330,52 +275,6 @@ export function ResidentDrawerMenu({ isVisible, onClose }: ResidentDrawerMenuPro
                       <View style={styles.subMenuContent}>
                         <FileText size={16} color="#0891b2" />
                         <Text style={styles.subMenuText}>Mes dépannages</Text>
-                      </View>
-                    </TouchableOpacity>
-                  </Link>
-                </View>
-              )}
-            </View>
-
-            {/* Paiement section */}
-            <View style={styles.menuSection}>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => setPaymentExpanded(!paymentExpanded)}
-              >
-                <View style={styles.menuItemContent}>
-                  <CreditCard size={20} color="#0891b2" />
-                  <Text style={styles.menuItemText}>Paiement</Text>
-                </View>
-                {paymentExpanded ? (
-                  <ChevronUp size={20} color="#0891b2" />
-                ) : (
-                  <ChevronDown size={20} color="#0891b2" />
-                )}
-              </TouchableOpacity>
-              {paymentExpanded && (
-                <View style={styles.subMenu}>
-                  <Link href="/resident/paiment/PaymentsScreen" asChild>
-                    <TouchableOpacity style={styles.subMenuItem} onPress={onClose}>
-                      <View style={styles.subMenuContent}>
-                        <Receipt size={16} color="#0891b2" />
-                        <Text style={styles.subMenuText}>Mes factures</Text>
-                      </View>
-                    </TouchableOpacity>
-                  </Link>
-                  <Link href="/resident/paiment/PaymentHistoryScreen" asChild>
-                    <TouchableOpacity style={styles.subMenuItem} onPress={onClose}>
-                      <View style={styles.subMenuContent}>
-                        <HistoryIcon size={16} color="#0891b2" />
-                        <Text style={styles.subMenuText}>Historique des paiements</Text>
-                      </View>
-                    </TouchableOpacity>
-                  </Link>
-                  <Link href="/resident/paiment/AddPaymentScreen" asChild>
-                    <TouchableOpacity style={styles.subMenuItem} onPress={onClose}>
-                      <View style={styles.subMenuContent}>
-                        <PlusCircle size={16} color="#0891b2" />
-                        <Text style={styles.subMenuText}>Ajouter un paiement</Text>
                       </View>
                     </TouchableOpacity>
                   </Link>

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import apiService from '../../services/apiService'; // Assurez-vous que le chemin est correct
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ResidentDrawerMenu } from '../../components/ResidentDrawerMenu';
 
 // Interface pour le profil utilisateur
 interface UserProfile {
@@ -16,6 +16,9 @@ export default function EditProfileScreen() {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isMenuVisible, setMenuVisible] = useState(false);
+
+  const toggleMenu = () => setMenuVisible(!isMenuVisible);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -79,41 +82,62 @@ export default function EditProfileScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Nom complet</Text>
-      <TextInput
-        style={styles.input}
-        value={name}
-        onChangeText={setName}
-        placeholder="Entrez votre nom complet"
-      />
+    <>
+      <View style={styles.container}>
+        <Text style={styles.label}>Nom complet</Text>
+        <TextInput
+          style={styles.input}
+          value={name}
+          onChangeText={setName}
+          placeholder="Entrez votre nom complet"
+        />
 
-      <Text style={styles.label}>Adresse e-mail</Text>
-      <TextInput
-        style={[styles.input, styles.disabledInput]}
-        value={profile?.email}
-        editable={false}
-      />
+        <Text style={styles.label}>Adresse e-mail</Text>
+        <TextInput
+          style={[styles.input, styles.disabledInput]}
+          value={profile?.email}
+          editable={false}
+        />
 
-      <Text style={styles.label}>Appartement</Text>
-      <TextInput
-        style={[styles.input, styles.disabledInput]}
-        value={profile?.unit}
-        editable={false}
-      />
+        <Text style={styles.label}>Appartement</Text>
+        <TextInput
+          style={[styles.input, styles.disabledInput]}
+          value={profile?.unit}
+          editable={false}
+        />
 
-      <Pressable style={styles.saveButton} onPress={handleSave} disabled={saving}>
-        {saving ? (
-          <ActivityIndicator color="#ffffff" />
-        ) : (
-          <Text style={styles.saveButtonText}>Enregistrer les modifications</Text>
-        )}
-      </Pressable>
-    </View>
+        <Pressable style={styles.saveButton} onPress={handleSave} disabled={saving}>
+          {saving ? (
+            <ActivityIndicator color="#ffffff" />
+          ) : (
+            <Text style={styles.saveButtonText}>Enregistrer les modifications</Text>
+          )}
+        </Pressable>
+      </View>
+      <ResidentDrawerMenu isVisible={isMenuVisible} onClose={toggleMenu} />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+  },
+  menuButton: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    zIndex: 1,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 8,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
   container: {
     flex: 1,
     padding: 20,

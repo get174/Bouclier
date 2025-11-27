@@ -66,7 +66,7 @@ function HomeScreen() {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [currentIndex]);
+  }, [currentIndex, images.length]);
 
   const styles = StyleSheet.create({
     loadingContainer: {

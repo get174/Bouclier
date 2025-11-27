@@ -1,6 +1,8 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ResidentHeader } from '../../components/ResidentHeader';
+import { useMenu } from '../../contexts/MenuContext';
 
 // Interface pour un équipement
 interface Amenity {
@@ -21,6 +23,7 @@ interface Booking {
 
 export default function AmenitiesScreen() {
   const router = useRouter();
+  const { toggleMenu } = useMenu();
   const [amenities, setAmenities] = useState<Amenity[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,7 +106,9 @@ export default function AmenitiesScreen() {
   }
 
   return (
-    <ScrollView style={styles.scrollContainer}>
+    <View style={{ flex: 1 }}>
+      <ResidentHeader title="Équipements" subtitle="Bouclier" onMenuPress={toggleMenu} />
+      <ScrollView style={styles.scrollContainer}>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Équipements disponibles</Text>
         <View style={styles.amenitiesList}>
@@ -166,11 +171,30 @@ export default function AmenitiesScreen() {
           </View>
         )}
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+  },
+  menuButton: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    zIndex: 1,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 8,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
   scrollContainer: {
     flex: 1,
     backgroundColor: '#f8fafc',

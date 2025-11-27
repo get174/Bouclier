@@ -1,4 +1,4 @@
-import { Filter, Home, Plus, Search, UserCheck, UserX } from 'lucide-react-native';
+import { Filter, Home, Search, UserCheck, UserX } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import type { Resident } from '../types';
@@ -149,15 +149,6 @@ export default function Residents() {
 
   const renderHeader = () => (
     <>
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.headerTitle}>Résidents</Text>
-          <Text style={styles.headerSubtitle}>Gestion des résidents de la résidence</Text>
-        </View>
-
-        
-      </View>
 
       {/* Pending Approvals */}
       <View style={styles.pendingCard}>
@@ -267,6 +258,14 @@ export default function Residents() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.listContent}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.headerTitle}>Résidents</Text>
+          <Text style={styles.headerSubtitle}>Gestion des résidents de la résidence</Text>
+        </View>
+      </View>
+
       {renderHeader()}
 
       {selectedResident ? (

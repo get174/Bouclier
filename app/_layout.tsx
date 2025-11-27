@@ -1,51 +1,31 @@
-import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
+import React from 'react';
 import { AlertProvider } from '../contexts/AlertContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
 
-SplashScreen.preventAutoHideAsync();
-
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
-    'SpaceMono-Regular': require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (fontsLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <AlertProvider>
-          <StatusBar style="auto" />
-          <Stack>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="login" options={{ headerShown: false }} />
-            <Stack.Screen name="LoginOtp" options={{ headerShown: false }} />
-            <Stack.Screen name="newpass" options={{ headerShown: false }} />
-            <Stack.Screen name="select_building" options={{ headerShown: false }} />
-            <Stack.Screen name="add_building" options={{ headerShown: false }} />
-            <Stack.Screen name="display_building" options={{ headerShown: false }} />
-            <Stack.Screen name="display_block" options={{ headerShown: false }} />
-            <Stack.Screen name="display_flat" options={{ headerShown: false }} />
-            <Stack.Screen name="register" options={{headerShown:false}}/>
-            <Stack.Screen name="securite" options={{ headerShown: false }} />
-          </Stack>
-          <Toast />
-        </AlertProvider>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <ThemeProvider>
+      <AlertProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="login" />
+          <Stack.Screen name="register" />
+          <Stack.Screen name="role_select" />
+          <Stack.Screen name="select_building" />
+          <Stack.Screen name="select_building_security" />
+          <Stack.Screen name="display_building" />
+          <Stack.Screen name="display_building_security" />
+          <Stack.Screen name="display_block" />
+          <Stack.Screen name="display_flat" />
+          <Stack.Screen name="add_building" />
+          <Stack.Screen name="forgotPassword" />
+          <Stack.Screen name="LoginOtp" />
+          <Stack.Screen name="newpass" />
+          <Stack.Screen name="securite" />
+          <Stack.Screen name="resident" />
+        </Stack>
+      </AlertProvider>
+    </ThemeProvider>
   );
 }

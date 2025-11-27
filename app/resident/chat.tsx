@@ -1,3 +1,4 @@
+import { Send } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Keyboard,
@@ -5,14 +6,14 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
-  Text
+  View
 } from 'react-native';
-import { Send } from 'lucide-react-native';
-import { Colors } from '@/constants/Colors';
+import { ResidentHeader } from '../../components/ResidentHeader';
+import { useMenu } from '../../contexts/MenuContext';
 
 interface Message {
   id: string;
@@ -23,6 +24,7 @@ interface Message {
 }
 
 export default function ChatScreen() {
+  const { toggleMenu } = useMenu();
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -79,11 +81,13 @@ export default function ChatScreen() {
   }, [messages]);
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 150 : 0}
-    >
+    <View style={styles.container}>
+      <ResidentHeader title="Chat" subtitle="Bouclier" onMenuPress={toggleMenu} />
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 150 : 0}
+      >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{flex: 1}}>
         <View style={styles.chatArea}>
           <ScrollView
@@ -150,14 +154,18 @@ export default function ChatScreen() {
           </View>
         </View>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: '#f8fafc',
+  },
+  keyboardAvoidingView: {
+    flex: 1,
   },
   chatArea: {
     flex: 1,

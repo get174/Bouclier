@@ -4,27 +4,23 @@ import { Bell, Calendar, Home, MessageCircle, Settings } from 'lucide-react-nati
 import React, { useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, Text, View } from 'react-native';
 import { ResidentDrawerMenu } from '../../components/ResidentDrawerMenu';
-import { ResidentHeader } from '../../components/ResidentHeader';
+import { MenuProvider, useMenu } from '../../contexts/MenuContext';
 import { useTheme } from '../../hooks/useTheme';
 import { getUnreadNotificationsCount } from '../../services/apiService';
 import AuthService from '../../services/authService';
 
-export default function ResidentTabLayout() {
-  const [isMenuVisible, setMenuVisible] = useState(false);
+function ResidentTabLayoutContent() {
+  const { isMenuVisible, toggleMenu } = useMenu();
   const [notificationCount, setNotificationCount] = useState(0);
   const [fullName, setFullName] = useState('');
   const { colors } = useTheme();
   const styles = getStyles(colors);
 
-  const toggleMenu = () => setMenuVisible(!isMenuVisible);
-
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const userData = await AuthService.fetchUserProfile();
-        if (userData && userData.fullName) {
-          setFullName(userData.fullName);
-        }
+
       } catch (error) {
         console.error('Failed to fetch user data:', error);
       }
@@ -49,48 +45,20 @@ export default function ResidentTabLayout() {
   return (
     <View style={{ flex: 1 }}>
       <StatusBar
-        barStyle={colors.background === '#151718' ? 'light-content' : 'dark-content'}
+        barStyle={colors.background === '#c9c9c9ff' ? 'light-content' : 'dark-content'}
         backgroundColor={colors.primary}
       />
       <Tabs
-        screenOptions={({ route }) => ({
-          header: () => {
-            let title = '';
-            let subtitle = '';
-            // Customize title and subtitle based on route name
-            if (route.name === 'home') {
-              title = `Bonjour ${fullName || 'Get'}`;
-              subtitle = 'Que veux-tu faire aujourd\'hui ?';
-            } else if (route.name === 'amenities') {
-              title = 'Équipements';
-              subtitle = 'Réserver et gérer les installations';
-            } else if (route.name === 'notifications') {
-                title = 'Notifications';
-                subtitle = 'Restez à jour';
-            } else if (route.name === 'chat') {
-                title = 'Chat';
-                subtitle = 'Discutez avec la communauté';
-            } else if (route.name === 'settings') {
-                title = 'Paramètres';
-                subtitle = 'Gérez votre profil';
-            }
-
-            return (
-              <ResidentHeader
-                title={title}
-                subtitle={subtitle}
-                onMenuPress={toggleMenu}
-              />
-            );
-          },
-          tabBarStyle: {
-            backgroundColor: colors.surfaceSecondary,
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
-          },
-          tabBarActiveTintColor: colors.secondary,
-          tabBarInactiveTintColor: colors.textSecondary,
-        })}>
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: colors.surfaceSecondary,
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
+        },
+        tabBarActiveTintColor: colors.secondary,
+        tabBarInactiveTintColor: colors.textSecondary,
+      })}>
         <Tabs.Screen
           name="home"
           options={{
@@ -190,49 +158,7 @@ export default function ResidentTabLayout() {
           }}
         />
 
-        {/* Hide payment screen from tab navigation */}
-        <Tabs.Screen
-          name="paiment/PaymentsScreen"
-          options={{
-            href: null,
-          }}
-        />
-        <Tabs.Screen
-          name="paiment/PaymentDetailsScreen"
-          options={{
-            href: null,
-          }}
-        />
-        <Tabs.Screen
-          name="paiment/AddPaymentScreen"
-          options={{
-            href: null,
-          }}
-        />
-        <Tabs.Screen
-          name="paiment/PaymentHistoryScreen"
-          options={{
-            href: null,
-          }}
-        />
-        <Tabs.Screen
-          name="paiment/paymentCard"
-          options={{
-            href: null,
-          }}
-        />
-         <Tabs.Screen
-          name="paiment/payment_processing"
-          options={{
-            href: null,
-          }}
-        />
-         <Tabs.Screen
-          name="paiment/payments"
-          options={{
-            href: null,
-          }}
-        />
+
 
         {/* Masquer l'écran de depanange de la navigation à l'onglet */}
          <Tabs.Screen
@@ -249,31 +175,11 @@ export default function ResidentTabLayout() {
             
           }}
         />
-        {/* Masquer l'écran de livraison de la navigation à l'onglet */}
-         <Tabs.Screen
-          name="livraison/DeliveriesListScreen"
-          options={{
-            href: null,
-            headerShown: false,
-          }}
-        />
-         <Tabs.Screen
-          name="livraison/DeliveryScreen"
-          options={{
-            href: null,
-          }}
-        />
-         <Tabs.Screen
-          name="livraison/AddDeliveryScreen"
-          options={{
-            href: null,
-            headerShown: false,
-          }}
-        />
+
 
       </Tabs>
       <ResidentDrawerMenu isVisible={isMenuVisible} onClose={toggleMenu} />
-    </View>
+      </View>
   );
 }
 
@@ -295,3 +201,11 @@ const getStyles = (colors: any) => StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+export default function ResidentTabLayout() {
+  return (
+    <MenuProvider>
+      <ResidentTabLayoutContent />
+    </MenuProvider>
+  );
+}

@@ -19,8 +19,8 @@ import {
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import ViewShot from 'react-native-view-shot';
-import { useCustomAlert } from '../../../contexts/AlertContext';
 import { ResidentHeader } from '../../../components/ResidentHeader';
+import { useCustomAlert } from '../../../contexts/AlertContext';
 import apiService from '../../../services/apiService';
 
 interface Visitor {
@@ -303,7 +303,7 @@ export default function AddVisitors() {
           <View style={styles.separator} />
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Valide jusqu'au *</Text>
+            <Text style={styles.label}>Valide jusqu&apos;au *</Text>
             <TouchableOpacity onPress={() => setShowDatePicker(true)}>
               <View style={styles.input}>
                 <Text style={styles.inputText}>{formatDate(validUntil)}</Text>

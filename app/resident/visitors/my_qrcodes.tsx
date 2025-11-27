@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl,TouchableOpacity } from 'react-native';
-import { useFocusEffect } from 'expo-router';
-import { Link } from 'expo-router';
+import { useFocusEffect , Link } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
 import apiService from '../../../services/apiService';
 import { ThemedView } from '@/components/ThemedView';
