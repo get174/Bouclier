@@ -9,6 +9,7 @@ interface ResidentHeaderProps {
   subtitle: string;
   onMenuPress: () => void;
   showBackButton?: boolean;
+  onBackPress?: () => void;
 }
 
 export function ResidentHeader({ title, subtitle, onMenuPress, showBackButton = false, onBackPress }: ResidentHeaderProps) {

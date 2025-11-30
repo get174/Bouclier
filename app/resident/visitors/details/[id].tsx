@@ -1,3 +1,4 @@
+import { ResidentHeader } from '@/components/ResidentHeader';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -68,27 +69,36 @@ export default function VisitorFullDetailsScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.headerSection}>
-        {visitor.photoUrl ? (
-          <Image source={{ uri: visitor.photoUrl }} style={styles.photo} />
-        ) : (
-          <View style={styles.avatarPlaceholder}>
-            <UserCircle size={80} color="#94a3b8" />
+    <View style={{ flex: 1 }}>
+      <ResidentHeader
+        title="Détails du Visiteur"
+        subtitle="Bouclier"
+        onMenuPress={() => {}}
+        showBackButton={true}
+        onBackPress={() => router.push('/resident/visitors/my_visitors')}
+      />
+      <ScrollView style={styles.container}>
+        <View style={styles.headerSection}>
+          {visitor.photoUrl ? (
+            <Image source={{ uri: visitor.photoUrl }} style={styles.photo} />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
+              <UserCircle size={80} color="#94a3b8" />
+            </View>
+          )}
+          <Text style={styles.visitorName}>{visitor.name}</Text>
+          <View style={[styles.statusBadge, styles[visitor.status]]}>
+            <Text style={styles.statusText}>{visitor.status}</Text>
           </View>
-        )}
-        <Text style={styles.visitorName}>{visitor.name}</Text>
-        <View style={[styles.statusBadge, styles[visitor.status]]}>
-          <Text style={styles.statusText}>{visitor.status}</Text>
         </View>
-      </View>
 
-      <View style={styles.detailsSection}>
-        <InfoRow label="Valide jusqu'au" value={formatDate(visitor.validUntil)} />
-        {visitor.phone && <InfoRow label="Téléphone" value={visitor.phone} />}
-        {visitor.reason && <InfoRow label="Raison de la visite" value={visitor.reason} />}
-      </View>
-    </ScrollView>
+        <View style={styles.detailsSection}>
+          <InfoRow label="Valide jusqu'au" value={formatDate(visitor.validUntil)} />
+          {visitor.phone && <InfoRow label="Téléphone" value={visitor.phone} />}
+          {visitor.reason && <InfoRow label="Raison de la visite" value={visitor.reason} />}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 

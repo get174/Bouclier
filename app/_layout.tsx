@@ -1,3 +1,4 @@
+import * as KeepAwake from 'expo-keep-awake';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
@@ -8,6 +9,11 @@ export default function RootLayout() {
   useEffect(() => {
     // Hide the splash screen after the layout is ready
     SplashScreen.hideAsync();
+
+    // Activate keep awake to prevent screen from sleeping
+    KeepAwake.activateKeepAwakeAsync().catch((error) => {
+      console.warn('Failed to activate keep awake:', error);
+    });
   }, []);
 
   return (

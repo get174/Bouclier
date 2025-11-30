@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import QRCode from 'react-native-qrcode-svg';
-import * as Sharing from 'expo-sharing';
-import ViewShot from 'react-native-view-shot';
-import apiService from '../../../services/apiService';
-import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { API_BASE_URL } from '@/constants/Config';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import * as Sharing from 'expo-sharing';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import ViewShot from 'react-native-view-shot';
 import { useCustomAlert } from '../../../contexts/AlertContext';
+import apiService from '../../../services/apiService';
 
 interface Visitor {
   _id: string;
@@ -84,31 +84,40 @@ export default function VisitorDetailScreen() {
     : null;
 
   return (
-    <ThemedView style={styles.container}>
-      {imageUrl ? (
-        <Image source={{ uri: imageUrl }} style={styles.visitorImage} />
-      ) : (
-        <View style={styles.visitorImagePlaceholder}>
-          <ThemedText>Pas de photo</ThemedText>
-        </View>
-      )}
-      <View style={styles.qrContainer}>
-        <ViewShot ref={qrCodeRef} options={{ format: 'png', quality: 1.0 }}>
-          <View style={styles.qrCodeBackground}>
-            <QRCode value={visitor.accessId} size={250} />
+    <View style={{ flex: 1 }}>
+      <ResidentHeader
+        title="Détails du Visiteur"
+        subtitle="Bouclier"
+        onMenuPress={() => {}}
+        showBackButton={true}
+        onBackPress={() => router.push('/resident/visitors/my_visitors')}
+      />
+      <ThemedView style={styles.container}>
+        {imageUrl ? (
+          <Image source={{ uri: imageUrl }} style={styles.visitorImage} />
+        ) : (
+          <View style={styles.visitorImagePlaceholder}>
+            <ThemedText>Pas de photo</ThemedText>
           </View>
-        </ViewShot>
-        <Text style={styles.visitorName}>{visitor.name}</Text>
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => router.back()}>
-          <Text style={styles.buttonText}>Annuler</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.shareButton]} onPress={shareQrCode}>
-          <Text style={styles.buttonText}>Partager</Text>
-        </TouchableOpacity>
-      </View>
-    </ThemedView>
+        )}
+        <View style={styles.qrContainer}>
+          <ViewShot ref={qrCodeRef} options={{ format: 'png', quality: 1.0 }}>
+            <View style={styles.qrCodeBackground}>
+              <QRCode value={visitor.accessId} size={250} />
+            </View>
+          </ViewShot>
+          <Text style={styles.visitorName}>{visitor.name}</Text>
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => router.back()}>
+            <Text style={styles.buttonText}>Annuler</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.shareButton]} onPress={shareQrCode}>
+            <Text style={styles.buttonText}>Partager</Text>
+          </TouchableOpacity>
+        </View>
+      </ThemedView>
+    </View>
   );
 }
 

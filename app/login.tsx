@@ -145,8 +145,6 @@ export default function Login() {
           throw new Error('Erreur lors de la sauvegarde des tokens');
         }
 
-        setToken(data.accessToken);
-
         // Fetch user buildingId and other info
         const userResponse = await fetch(`${API_BASE_URL}/api/user/userBuilding`, {
           method: 'GET',
