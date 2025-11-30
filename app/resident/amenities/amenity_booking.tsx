@@ -1,4 +1,4 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -54,6 +54,20 @@ export default function BookAmenityScreen() {
     setDate(currentDate);
   };
 
+  const openDatePicker = () => {
+    if (Platform.OS === 'android') {
+      DateTimePickerAndroid.open({
+        value: date,
+        onChange: onDateChange,
+        mode: 'date',
+        is24Hour: true,
+        minimumDate: new Date(),
+      });
+    } else {
+      setShowDatePicker(true);
+    }
+  };
+
   const handleBooking = async () => {
     if (!amenity) return;
 
@@ -84,13 +98,13 @@ export default function BookAmenityScreen() {
       <Text style={styles.title}>Réserver : {amenity?.name}</Text>
 
       <View style={styles.datePickerContainer}>
-        <Pressable onPress={() => setShowDatePicker(true)} style={styles.datePickerButton}>
+        <Pressable onPress={openDatePicker} style={styles.datePickerButton}>
           <Text style={styles.datePickerButtonText}>Sélectionner une date</Text>
         </Pressable>
         <Text style={styles.selectedDateText}>Date : {date.toLocaleDateString()}</Text>
       </View>
 
-      {showDatePicker && (
+      {showDatePicker && Platform.OS === 'ios' && (
         <DateTimePicker
           testID="dateTimePicker"
           value={date}

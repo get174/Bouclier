@@ -11,7 +11,7 @@ interface ResidentHeaderProps {
   showBackButton?: boolean;
 }
 
-export function ResidentHeader({ title, subtitle, onMenuPress, showBackButton = false }: ResidentHeaderProps) {
+export function ResidentHeader({ title, subtitle, onMenuPress, showBackButton = false, onBackPress }: ResidentHeaderProps) {
   const router = useRouter();
 
   return (
@@ -21,11 +21,11 @@ export function ResidentHeader({ title, subtitle, onMenuPress, showBackButton = 
     >
       <View style={styles.headerContent}>
         {showBackButton ? (
-          <TouchableOpacity style={styles.menuButton} onPress={() => router.back()}>
+          <TouchableOpacity style={styles.menuButton} onPress={onBackPress || (() => router.back())}>
             <ArrowLeft size={28} color="#ffffffff" />
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity style={styles.menuButton} onPress={onMenuPress}>
+          <TouchableOpacity style={styles.menuButton} onPress={onMenuPress || (() => {})}>
             <Menu size={28} color="#fafafaff" />
           </TouchableOpacity>
         )}

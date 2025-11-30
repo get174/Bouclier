@@ -1,10 +1,11 @@
-import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
-import { useFocusEffect, Link } from 'expo-router';
-import apiService from '../../../services/apiService';
-import { ThemedView } from '@/components/ThemedView';
+import { ResidentHeader } from '@/components/ResidentHeader';
 import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { Link, useFocusEffect } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import apiService from '../../../services/apiService';
 
 interface Visitor {
   _id: string;
@@ -44,7 +45,7 @@ function VisitorCard({ visitor }: { visitor: Visitor }) {
         <View>
           <Text style={styles.visitorName}>{visitor.name}</Text>
           <Text style={styles.validityText}>
-            Valide jusquau {formatDate(visitor.validUntil)}
+            Valide jusqu'au {formatDate(visitor.validUntil)}
           </Text>
           <View style={[styles.statusBadge, statusStyles[visitor.status]]}>
             <Text style={[styles.statusText, { color: statusStyles[visitor.status].color }]}>
@@ -100,30 +101,38 @@ export default function MyVisitorsScreen() {
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    >
-      <ThemedView style={styles.page}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Prochains Visiteurs</Text>
-          {upcomingVisitors.length > 0 ? (
-            upcomingVisitors.map(visitor => <VisitorCard key={visitor._id} visitor={visitor} />)
-          ) : (
-            <Text style={styles.emptyText}>Aucun visiteur à venir.</Text>
-          )}
-        </View>
+    <View style={{ flex: 1 }}>
+      <ResidentHeader
+        title="Mes Visiteurs"
+        subtitle="Bouclier"
+        showBackButton={true}
+        onBackPress={() => router.push('/resident/home')}
+      />
+      <ScrollView
+        style={styles.container}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <ThemedView style={styles.page}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Prochains Visiteurs</Text>
+            {upcomingVisitors.length > 0 ? (
+              upcomingVisitors.map(visitor => <VisitorCard key={visitor._id} visitor={visitor} />)
+            ) : (
+              <Text style={styles.emptyText}>Aucun visiteur à venir.</Text>
+            )}
+          </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Historique des Visites</Text>
-          {pastVisitors.length > 0 ? (
-            pastVisitors.map(visitor => <VisitorCard key={visitor._id} visitor={visitor} />)
-          ) : (
-            <Text style={styles.emptyText}>Aucun historique de visite.</Text>
-          )}
-        </View>
-      </ThemedView>
-    </ScrollView>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Historique des Visites</Text>
+            {pastVisitors.length > 0 ? (
+              pastVisitors.map(visitor => <VisitorCard key={visitor._id} visitor={visitor} />)
+            ) : (
+              <Text style={styles.emptyText}>Aucun historique de visite.</Text>
+            )}
+          </View>
+        </ThemedView>
+      </ScrollView>
+    </View>
   );
 }
 

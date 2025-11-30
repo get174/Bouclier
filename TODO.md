@@ -1,35 +1,20 @@
-# TODO: Fix ESLint Warnings and Errors
+# TODO: Add Header and Back Button to My Visitors Screen
 
-## Frontend (React Native / TypeScript)
-- [x] Fix missing dependency 'images.length' in useEffect in app/index.tsx
-- [ ] Fix unused 'error' in app/newpass.tsx
-- [x] Fix unused 'SecureStore' in app/register.tsx
-- [x] Fix unused 'fullName' in app/resident/_layout.tsx
-- [ ] Fix missing dependency 'router' in useEffect in app/resident/amenities/amenity_booking.tsx
-- [ ] Fix unused 'loading' in app/resident/home.tsx
-- [ ] Fix unused 'unreadCount' in app/resident/notifications.tsx
-- [ ] Fix unused 'setThemeMode' in app/resident/settings.tsx
-- [ ] Fix missing dependencies 'router' and 'showAlert' in useEffect in app/resident/visitors/[id].tsx
-- [ ] Fix unused 'image' and 'setImage' in app/resident/visitors/add_visitors.tsx
-- [ ] Fix missing dependencies 'router' and 'showAlert' in useEffect in app/resident/visitors/details/[id].tsx
-- [ ] Fix unescaped entities in app/securite/AddVisitor.tsx (line 219)
-- [ ] Fix unescaped entities in app/securite/ScanControl.tsx (lines 67, 176, 184)
-- [ ] Fix unused 'getStatusBadge' in app/securite/Visitors.tsx
-- [ ] Fix unused 'setSelectedBuilding' and 'handleRegister' in app/select_building.tsx
-- [ ] Fix unused 'setSelectedBuilding' and 'handleRegister' in app/select_building_security.tsx
-- [ ] Fix missing dependency 'slideAnim' in useEffect in components/ResidentDrawerMenu.tsx
-- [ ] Fix no-unused-expressions in constants/Config.ts
-- [ ] Fix unused 'refreshError' in services/apiService.ts
-- [ ] Fix unused 'error' in services/authService.ts
-- [ ] Fix unused 'BlockData' and 'ApartmentData' in services/locationService.ts
+## Task: Add a header adapted to the application and a back button that takes back to home in the "my visitors" screen.
 
-## Backend (Node.js / JavaScript)
-- [ ] Fix unused 'mongoose' and 'error' in backend/api/apartments.js
-- [ ] Fix unused 'refreshTokenExpirySeconds' in backend/routes/login.js
-- [ ] Fix unused 'error' in backend/routes/notifications.js (lines 13, 24)
-- [ ] Fix unused 'err' in backend/routes/verifyOtp.js
-- [ ] Fix unused 'createdVisitors' in backend/routes/visitors.js
+### Steps:
+1. Import ResidentHeader component and router from expo-router in my_visitors.tsx
+2. Add ResidentHeader at the top of the screen with appropriate props:
+   - title: "Mes Visiteurs"
+   - subtitle: "Bouclier"
+   - showBackButton: true
+   - onBackPress: navigate to home screen
+3. Adjust ScrollView styling to account for the header (remove paddingTop: 25 since header will handle spacing)
+4. Test the navigation and styling
 
-## Config Files
-- [ ] Fix unused 'path' in metro.config.js
-- [ ] Remove unused eslint-disable directive in .expo/types/router.d.ts
+### Files to modify:
+- app/resident/visitors/my_visitors.tsx
+
+### Dependencies:
+- ResidentHeader component (already exists)
+- expo-router for navigation

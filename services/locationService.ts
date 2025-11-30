@@ -1,19 +1,6 @@
 import { API_BASE_URL } from '../constants/Config';
 import authService from './authService';
 
-interface BlockData {
-  id: string;
-  name: string;
-  buildingId: string;
-}
-
-interface ApartmentData {
-  id: string;
-  name: string;
-  blockId: string;
-  number: string;
-}
-
 interface LocationInfo {
   blockName?: string;
   apartmentName?: string;
