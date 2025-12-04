@@ -1,35 +1,72 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
 const { authenticateToken } = require('../middleware/auth');
 const Repair = require('../models/Repair');
 const User = require('../models/User');
 const mongoose = require('mongoose');
 
+// Multer storage configuration
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage });
+
 // @route   POST api/repairs
 // @desc    Create a new repair request
 // @access  Private
-router.post('/', authenticateToken, async (req, res) => {
-  const { description, category, photos } = req.body;
-  
+router.post('/', authenticateToken, upload.any(), async (req, res) => {
+  const { description, category } = req.body;
+
   try {
     const user = await User.findById(req.user.id);
-    if (!user || !user.building || !user.apartment) {
+    if (!user || !user.buildingId || !user.appartementId) {
       return res.status(400).json({ msg: 'User building or apartment not set' });
     }
 
+    // Validate ObjectIds
+    if (!mongoose.Types.ObjectId.isValid(user.buildingId) || !mongoose.Types.ObjectId.isValid(user.appartementId)) {
+      return res.status(400).json({ msg: 'Invalid building or apartment ID' });
+    }
+
+    // Map frontend categories to backend
+    const categoryMapping = {
+      'plomberie': 'Plomberie',
+      'electricite': 'Électricité',
+      'ascenseur': 'Ascenseur',
+      'autre': 'Autre'
+    };
+
+    const mappedCategory = categoryMapping[category] || 'Autre';
+
+    // Handle uploaded photos
+    const photos = req.files ? req.files.map(file => `uploads/${file.filename}`) : [];
+
+    console.log('Creating repair for user:', req.user.id);
+    console.log('User buildingId:', user.buildingId, 'appartementId:', user.appartementId);
+
     const newRepair = new Repair({
       resident: req.user.id,
-      building: user.building,
-      apartment: user.apartment,
+      building: new mongoose.Types.ObjectId(user.buildingId),
+      apartment: new mongoose.Types.ObjectId(user.appartementId),
       description,
-      category,
+      category: mappedCategory,
       photos
     });
+
+    console.log('New repair object:', newRepair);
 
     const repair = await newRepair.save();
     res.json(repair);
   } catch (err) {
-    console.error(err.message);
+    console.error('Error creating repair:', err);
     res.status(500).send('Server Error');
   }
 });
@@ -57,8 +94,8 @@ router.get('/building', authenticateToken, async (req, res) => {
         return res.status(403).json({ msg: 'Access denied' });
       }
   
-      const repairs = await Repair.find({ building: user.building })
-        .populate('resident', ['name', 'email'])
+      const repairs = await Repair.find({ building: new mongoose.Types.ObjectId(user.buildingId) })
+        .populate('resident', ['fullName', 'email'])
         .populate('apartment', ['name'])
         .sort({ createdAt: -1 });
         

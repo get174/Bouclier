@@ -22,6 +22,8 @@ import {
   TextInput,
   View
 } from 'react-native';
+import repairService from '../../../services/repairService';
+import { ResidentHeader } from '../../../components/ResidentHeader';
 
 interface ProblemData {
   type: string;
@@ -45,23 +47,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  header: {
-    padding: 20,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1e293b',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#64748b',
-    lineHeight: 22,
   },
   section: {
     padding: 20,
@@ -287,40 +272,48 @@ export default function DepanageScreen() {
     setSubmitting(true);
 
     try {
-      const problemData: ProblemData = {
-        type: selectedType,
+      // Send to backend
+      await repairService.createRepairRequest({
+        category: selectedType,
         description: description.trim(),
-        image: image || undefined,
-      };
+        photoUri: image, // Pass the image URI directly
+      });
 
-      // TODO: Envoyer les données au backend
-      console.log('Données à envoyer:', problemData);
+      Alert.alert(
+        'Demande envoyée',
+        'Votre demande de dépannage a été envoyée avec succès. Vous recevrez une notification dès qu\'un technicien sera assigné.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              // Réinitialiser le formulaire
+              setSelectedType('');
+              setDescription('');
+              setImage('');
+              router.back();
+            }
+          }
+        ]
+      );
 
-      // Simulation d'envoi
-      setTimeout(() => {
-        setSubmitting(false);
+    } catch (error: any) {
+      console.error('Erreur lors de l\'envoi:', error);
+      if (error.message === 'SESSION_EXPIRED') {
         Alert.alert(
-          'Demande envoyée',
-          'Votre demande de dépannage a été envoyée avec succès. Vous recevrez une notification dès qu\'un technicien sera assigné.',
+          'Session expirée',
+          'Votre session a expiré. Veuillez vous reconnecter.',
           [
             {
               text: 'OK',
-              onPress: () => {
-                // Réinitialiser le formulaire
-                setSelectedType('');
-                setDescription('');
-                setImage('');
-                router.back();
-              }
+              onPress: () => router.push('/login')
             }
           ]
         );
-      }, 1500);
-
-    } catch (error) {
+      } else {
+        Alert.alert('Erreur', 'Impossible d\'envoyer la demande. Veuillez réessayer.');
+      }
+    } finally {
       setSubmitting(false);
-      console.error('Erreur lors de l\'envoi:', error);
-      Alert.alert('Erreur', 'Impossible d\'envoyer la demande. Veuillez réessayer.');
     }
   };
 
@@ -409,12 +402,11 @@ export default function DepanageScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>Demande de dépannage</Text>
-          <Text style={styles.subtitle}>
-            Signalez un problème technique dans votre bâtiment
-          </Text>
-        </View>
+        <ResidentHeader
+          title="   Demande de dépannage"
+          subtitle="Signalez un problème technique "
+          showBackButton={true}
+        />
 
         {renderProblemTypeSelector()}
         {renderDescriptionField()}

@@ -1,3 +1,4 @@
+import { ResidentHeader } from '@/components/ResidentHeader';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { API_BASE_URL } from '@/constants/Config';

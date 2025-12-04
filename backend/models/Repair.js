@@ -23,7 +23,7 @@ const repairSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['Plomberie', 'Électricité', 'Climatisation', 'Serrurerie', 'Autre']
+    enum: ['Plomberie', 'Électricité', 'Ascenseur', 'Autre']
   },
   status: {
     type: String,

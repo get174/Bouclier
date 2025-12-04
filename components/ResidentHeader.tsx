@@ -7,7 +7,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 interface ResidentHeaderProps {
   title: string;
   subtitle: string;
-  onMenuPress: () => void;
+  onMenuPress?: () => void;
   showBackButton?: boolean;
   onBackPress?: () => void;
 }
@@ -81,5 +81,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#ffffff',
     opacity: 0.9,
+    textAlign: 'center',
   },
 });
