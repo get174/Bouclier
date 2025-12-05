@@ -21,16 +21,19 @@ const userSchema = new mongoose.Schema({
     required: false,
   },
   buildingId: {
-    type:String,
-    required:false,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Building',
+    required: false,
   },
   blockId: {
-    type : String,
-    requird :false,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Block',
+    required: false,
   },
   appartementId: {
-    type : String,
-    required : false,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Apartment',
+    required: false,
   },
 
   isTemporary: { type: Boolean, default: true }, // ajoute d’autres champs si nécessaire (ex: password, name, etc)
@@ -46,7 +49,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'temporary', // Can be 'temporary', 'active', 'inactive'
   },
-  
+  profileImage: {
+    type: String, // URL to the uploaded profile image
+    required: false,
+  },
+
     // tu peux ajouter d’autres champs plus tard (nom, role, etc.)
 });
 

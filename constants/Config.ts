@@ -11,7 +11,7 @@
 // - 172.20.10.xxx (hotspot mobile)
 
 // pour le développement - changez ceci à votre actuel IP
-const DEV_IP = '192.168.59.225'; // Changez ceci à votre actuel IP
+const DEV_IP = '192.168.198.225'; // Changez ceci à votre actuel IP
 
 // pour la production - ce serait votre URL du serveur déployé
 const PROD_URL = 'https://your-production-server.com';

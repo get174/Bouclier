@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, Check, Eye, EyeOff, X } from "lucide-react-native";
+import { Check, Eye, EyeOff, X } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { ResidentHeader } from "../components/ResidentHeader";
 import { API_BASE_URL } from "../constants/Config";
 import { useCustomAlert } from "../contexts/AlertContext";
 
@@ -90,13 +91,13 @@ export default function NewPass() {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Nouveau mot de passe</Text>
-      </View>
+      <StatusBar backgroundColor="#0f766e" barStyle="light-content" />
+      <ResidentHeader
+        title="Nouveau mot de passe"
+        subtitle="Sécurisez votre compte"
+        showBackButton={true}
+        onBackPress={() => router.back()}
+      />
 
       <View style={styles.form}>
         <Text style={styles.subtitle}>
@@ -196,27 +197,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
-  },
-  backButton: {
-    position: 'absolute',
-    left: 16,
-    zIndex: 1,
-  },
-  title: {
-    flex: 1,
-    fontSize: 20,
-    fontWeight: "700",
-    color: "black",
-    textAlign: "center",
   },
   form: {
     flex: 1,

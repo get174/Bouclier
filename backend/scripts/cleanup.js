@@ -12,10 +12,16 @@ async function cleanupCollections() {
     await mongoose.connect(MONGODB_URI);
     console.log('✅ Connected to MongoDB');
 
-    // Delete all apartments
-    console.log('🗑️ Deleting apartments...');
-    const apartmentResult = await Apartment.deleteMany({});
-    console.log(`✅ Deleted ${apartmentResult.deletedCount} apartments`);
+    // Delete all apartments except the last one
+    console.log('🗑️ Deleting apartments except the last one...');
+    const lastApartment = await Apartment.findOne().sort({ _id: -1 });
+    if (lastApartment) {
+      console.log(`Keeping last apartment: ${lastApartment._id} - ${lastApartment.apartmentNumber}`);
+      const apartmentResult = await Apartment.deleteMany({ _id: { $ne: lastApartment._id } });
+      console.log(`✅ Deleted ${apartmentResult.deletedCount} apartments`);
+    } else {
+      console.log('No apartments found');
+    }
 
     // Delete all blocks
     console.log('🗑️ Deleting blocks...');

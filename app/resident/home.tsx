@@ -36,25 +36,107 @@ export default function HomeScreen() {
       const authService = AuthService;
       const profile = await authService.fetchUserProfile();
       setUserData(profile);
+      console.log('User profile loaded:', profile);
 
       if (profile) {
+        console.log('Profile IDs - appartementId:', profile.appartementId, 'blockId:', profile.blockId, 'buildingId:', profile.buildingId);
+
         if (profile.appartementId) {
+          console.log('Fetching apartment data for:', profile.appartementId);
+          try {
+            const headers = await authService.getAuthenticatedHeaders();
+            const response = await fetch(`${API_BASE_URL}/api/apartments/${profile.appartementId}`, {
+              method: 'GET',
+              headers,
+            });
+            if (response.ok) {
+              const data = await response.json();
+              console.log('Apartment data (home):', data);
+              if (data.success && data.apartment) {
+                setApartmentNumber(data.apartment.number || '');
+                setBlockName(data.apartment.blockName || '');
+                console.log('Apartment state set (home):', data.apartment.number, data.apartment.blockName);
+              } else {
+                console.log('Apartment data not found, falling back to block data');
+                // Fall through to block logic
+                if (profile.blockId) {
+                  console.log('Fetching block data for:', profile.blockId);
+                  const headers2 = await authService.getAuthenticatedHeaders();
+                  const response2 = await fetch(`${API_BASE_URL}/api/blocks/${profile.blockId}`, {
+                    method: 'GET',
+                    headers: headers2,
+                  });
+                  if (response2.ok) {
+                    const data2 = await response2.json();
+                    console.log('Block data (home):', data2);
+                    if (data2.success && data2.block) {
+                      setBlockName(data2.block.name || '');
+                      if (!buildingName) {
+                        setBuildingName(data2.block.buildingName || '');
+                      }
+                      console.log('Block state set (home):', data2.block.name, data2.block.buildingName);
+                    }
+                  } else {
+                    console.log('Block API failed:', response2.status);
+                  }
+                }
+              }
+            } else {
+              console.log('Apartment API failed:', response.status, 'falling back to block data');
+              // Fall through to block logic
+              if (profile.blockId) {
+                console.log('Fetching block data for:', profile.blockId);
+                const headers2 = await authService.getAuthenticatedHeaders();
+                const response2 = await fetch(`${API_BASE_URL}/api/blocks/${profile.blockId}`, {
+                  method: 'GET',
+                  headers: headers2,
+                });
+                if (response2.ok) {
+                  const data2 = await response2.json();
+                  console.log('Block data (home):', data2);
+                  if (data2.success && data2.block) {
+                    setBlockName(data2.block.name || '');
+                    if (!buildingName) {
+                      setBuildingName(data2.block.buildingName || '');
+                    }
+                    console.log('Block state set (home):', data2.block.name, data2.block.buildingName);
+                  }
+                } else {
+                  console.log('Block API failed:', response2.status, '- No location data available');
+                }
+              } else {
+                console.log('No blockId available - No location data available');
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching apartment data:', error);
+          }
+        } else if (profile.blockId) {
+          console.log('Fetching block data for:', profile.blockId);
           const headers = await authService.getAuthenticatedHeaders();
-          const response = await fetch(`${API_BASE_URL}/api/apartments/${profile.appartementId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/blocks/${profile.blockId}`, {
             method: 'GET',
             headers,
           });
           if (response.ok) {
             const data = await response.json();
-            console.log('Apartment data (home):', data);
-            if (data.success && data.apartment) {
-              setApartmentNumber(data.apartment.number || '');
-              setBlockName(data.apartment.blockName || '');
-              console.log('Apartment state set (home):', data.apartment.number, data.apartment.blockName);
+            console.log('Block data (home):', data);
+            if (data.success && data.block) {
+              setBlockName(data.block.name || '');
+              if (!buildingName) {
+                setBuildingName(data.block.buildingName || '');
+              }
+              console.log('Block state set (home):', data.block.name, data.block.buildingName);
             }
+          } else {
+            console.log('Block API failed:', response.status);
           }
+        } else {
+          console.log('No appartementId or blockId found in profile');
         }
+
         if (profile.buildingId) {
+          console.log('Fetching building data for:', profile.buildingId);
           const headers = await authService.getAuthenticatedHeaders();
           const response = await fetch(`${API_BASE_URL}/api/buildings/${profile.buildingId}`, {
             method: 'GET',
@@ -67,8 +149,14 @@ export default function HomeScreen() {
               setBuildingName(data.building.name || '');
               console.log('Building state set (home):', data.building.name);
             }
+          } else {
+            console.log('Building API failed:', response.status);
           }
+        } else {
+          console.log('No buildingId found in profile');
         }
+      } else {
+        console.log('No profile data received');
       }
     } catch (error) {
       console.error('Error loading user profile:', error);
@@ -100,9 +188,9 @@ export default function HomeScreen() {
             <View style={styles.userDetails}>
               <Text style={styles.userName}>{userData?.fullName || 'Resident'}</Text>
               <View style={styles.apartmentInfo}>
-                <Text style={styles.apartmentText}>
-                  {buildingName} {blockName && `- ${blockName}`} {apartmentNumber && `- Apt ${apartmentNumber}`}
-                </Text>
+                <Text style={styles.buildingText}>{buildingName}</Text>
+                <Text style={styles.blockText}>Block: {blockName || 'Non assigné'}</Text>
+                <Text style={styles.aptText}>Apt: {apartmentNumber || 'Non assigné'}</Text>
               </View>
             </View>
           </View>
@@ -180,13 +268,30 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   apartmentInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
   },
   apartmentText: {
     fontSize: 14,
     color: '#64748b',
     marginLeft: 4,
+  },
+  buildingText: {
+    fontSize: 14,
+    color: '#64748b',
+    marginLeft: 4,
+  },
+  blockText: {
+    fontSize: 14,
+    color: '#64748b',
+    marginLeft: 4,
+    marginTop: 2,
+  },
+  aptText: {
+    fontSize: 14,
+    color: '#64748b',
+    marginLeft: 4,
+    marginTop: 2,
   },
   errorText: {
     textAlign: 'center',

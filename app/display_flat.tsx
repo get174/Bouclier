@@ -44,7 +44,7 @@ export default function DisplayFlat() {
         return;
       }
 
-      const response = await fetch(`${getApiUrl()}/api/blocks/${blockId}/apartments`, {
+      const response = await fetch(`${getApiUrl()}/api/apartments/blocks/${blockId}/apartments`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${accessToken}`,

@@ -196,6 +196,7 @@ class AuthService {
           blockId: data.user.blockId,
           appartementId: data.user.appartementId,
           role: data.user.role,
+          profileImage: data.user.profileImage,
         };
 
         await this.storeUserData(userData);

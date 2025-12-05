@@ -54,7 +54,7 @@ app.use('/api/buildings', buildingsRouter);
 app.use('/api/blocks', blocksRouter);
 app.use('/api/user', userBuildingRoute);
 app.use('/api/notifications', notificationsRoute);
-app.use('/api', apartmentsRouter); // Route générique en dernier
+app.use('/api/apartments', apartmentsRouter);
 
 // Démarrer le serveur après que tous les itinéraires sont enregistrés
 app.listen(PORT, () => {

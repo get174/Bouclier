@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Apartment = require('../models/Apartment');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -7,11 +8,11 @@ const { authenticateToken } = require('../middleware/auth');
 router.get('/blocks/:blockId/apartments', authenticateToken, async (req, res) => {
   try {
     const { blockId } = req.params;
-    
-    const apartments = await Apartment.find({ blockId: blockId })
+
+    const apartments = await Apartment.find({ blockId: new mongoose.Types.ObjectId(blockId) })
       .populate('blockId', 'blockName')
       .sort({ apartmentNumber: 1 });
-    
+
     res.status(200).json(apartments);
   } catch (err) {
     console.error('Erreur lors de la récupération des appartements:', err);

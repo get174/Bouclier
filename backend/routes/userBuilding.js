@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -222,6 +223,28 @@ router.put('/update-building', authenticateToken, validateUserExists, async (req
 router.put('/update-block', authenticateToken, validateUserExists, async (req, res) => {
   try {
     const { blockId } = req.body;
+
+    // Validate blockId
+    if (!blockId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Block ID is required'
+      });
+    }
+
+    // Import Block model
+    const Block = require('../models/Block');
+
+    // Check if block exists
+    const block = await Block.findById(blockId);
+    if (!block) {
+      return res.status(404).json({
+        success: false,
+        message: 'Block not found',
+        error: 'BLOCK_NOT_FOUND'
+      });
+    }
+
     const user = await User.findByIdAndUpdate(
       req.user.userId,
       { blockId },
@@ -252,6 +275,36 @@ router.put('/update-block', authenticateToken, validateUserExists, async (req, r
 router.put('/select-apartment', authenticateToken, validateUserExists, async (req, res) => {
   try {
     const { apartmentId } = req.body;
+
+    // Validate apartmentId
+    if (!apartmentId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Apartment ID is required'
+      });
+    }
+
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(apartmentId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid apartment ID format'
+      });
+    }
+
+    // Import Apartment model
+    const Apartment = require('../models/Apartment');
+
+    // Check if apartment exists
+    const apartment = await Apartment.findById(apartmentId);
+    if (!apartment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Apartment not found',
+        error: 'APARTMENT_NOT_FOUND'
+      });
+    }
+
     const user = await User.findByIdAndUpdate(
       req.user.userId,
       {

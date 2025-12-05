@@ -1,3 +1,4 @@
+import * as ImagePicker from 'expo-image-picker';
 import { Link, useRouter } from 'expo-router';
 import {
   ChevronDown,
@@ -17,11 +18,12 @@ import {
   Alert,
   Animated,
   Dimensions,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 // Update the path below if your authService is located elsewhere, e.g.:
 // import authService from '../services/authService';
@@ -47,6 +49,7 @@ export function ResidentDrawerMenu({ isVisible, onClose }: ResidentDrawerMenuPro
   const [apartmentNumber, setApartmentNumber] = useState<string>(''); // State for apartment number
   const [blockName, setBlockName] = useState<string>(''); // State for block name
   const [buildingName, setBuildingName] = useState<string>(''); // State for building name
+  const [profileImageUri, setProfileImageUri] = useState<string | null>(null); // State for profile image URI
   const slideAnim = React.useRef(new Animated.Value(-width * 0.8)).current;
 
   useEffect(() => {
@@ -56,6 +59,7 @@ export function ResidentDrawerMenu({ isVisible, onClose }: ResidentDrawerMenuPro
         const userData = await authService.fetchUserProfile();
         if (userData) {
           setFullName(userData.fullName || '');
+          setProfileImageUri(userData.profileImage ? `${API_BASE_URL}/${userData.profileImage}` : null);
           if (userData.appartementId) {
             // Using the apartmentId from the user's profile, fetch apartment details from the backend
             const headers = await authService.getAuthenticatedHeaders();
@@ -116,6 +120,92 @@ export function ResidentDrawerMenu({ isVisible, onClose }: ResidentDrawerMenuPro
     }
   }, [isVisible]);
 
+  const handleImagePicker = async () => {
+    Alert.alert(
+      "Changer la photo de profil",
+      "Choisissez une option",
+      [
+        {
+          text: "Annuler",
+          style: "cancel"
+        },
+        {
+          text: "Prendre une photo",
+          onPress: async () => {
+            const { status } = await ImagePicker.requestCameraPermissionsAsync();
+            if (status !== 'granted') {
+              Alert.alert('Permission refusée', 'La permission d\'accès à la caméra est requise.');
+              return;
+            }
+            const result = await ImagePicker.launchCameraAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              allowsEditing: true,
+              aspect: [1, 1],
+              quality: 0.8,
+            });
+            if (!result.canceled) {
+              await uploadProfileImage(result.assets[0].uri);
+            }
+          }
+        },
+        {
+          text: "Choisir depuis la galerie",
+          onPress: async () => {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+              Alert.alert('Permission refusée', 'La permission d\'accès à la galerie est requise.');
+              return;
+            }
+            const result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              allowsEditing: true,
+              aspect: [1, 1],
+              quality: 0.8,
+            });
+            if (!result.canceled) {
+              await uploadProfileImage(result.assets[0].uri);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const uploadProfileImage = async (uri: string) => {
+    try {
+      const headers = await authService.getAuthenticatedHeaders();
+      const formData = new FormData();
+      formData.append('profileImage', {
+        uri,
+        name: 'profile.jpg',
+        type: 'image/jpeg',
+      } as any);
+      // Note: We need to get current fullName and role, but for now we'll assume they exist
+      formData.append('fullName', fullName);
+      formData.append('role', 'resident'); // Assuming resident role
+
+      const response = await fetch(`${API_BASE_URL}/api/update-profile`, {
+        method: 'POST',
+        headers: {
+          ...headers,
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProfileImageUri(`${API_BASE_URL}/${data.profileImage}`);
+        Alert.alert('Succès', 'Photo de profil mise à jour avec succès.');
+      } else {
+        Alert.alert('Erreur', 'Échec de la mise à jour de la photo de profil.');
+      }
+    } catch (error) {
+      console.error('Error uploading profile image:', error);
+      Alert.alert('Erreur', 'Une erreur s\'est produite lors du téléchargement.');
+    }
+  };
+
   const handleLogout = () => {
     Alert.alert(
       "Déconnexion",
@@ -154,13 +244,21 @@ export function ResidentDrawerMenu({ isVisible, onClose }: ResidentDrawerMenuPro
       >
         <View style={styles.menuContent}>
           <View style={styles.profileSection}>
-            <View style={styles.profileImageContainer}>
+            <TouchableOpacity style={styles.profileImageContainer} onPress={handleImagePicker}>
               <View style={styles.profileImage}>
-                <Text style={styles.profileInitial}>{fullName ? fullName.charAt(0) : 'G'}</Text>
+                {profileImageUri ? (
+                  <Image source={{ uri: profileImageUri }} style={styles.profileImageStyle} />
+                ) : (
+                  <Text style={styles.profileInitial}>{fullName ? fullName.charAt(0) : 'G'}</Text>
+                )}
               </View>
-            </View>
+            </TouchableOpacity>
             <Text style={styles.profileName}>{fullName || 'Get'}</Text>
-            <Text style={styles.profileApartment}>{apartmentNumber ? `Appartement ${apartmentNumber}${blockName ? ` - ${blockName}` : ''}${buildingName ? ` - ${buildingName}` : ''}` : 'Appartement A-101'}</Text>
+            <Text style={styles.profileApartment}>
+              {apartmentNumber ? `Appartement ${apartmentNumber}` : 'Appartement A-101'}
+              {blockName ? `\n${blockName}` : ''}
+              {buildingName ? `\n${buildingName}` : ''}
+            </Text>
           </View>
 
           <ScrollView style={styles.menuOptions}>
@@ -242,7 +340,7 @@ export function ResidentDrawerMenu({ isVisible, onClose }: ResidentDrawerMenuPro
               )}
             </View>
 
-         
+
 
             {/* Dépannage section */}
             <View style={styles.menuSection}>
@@ -281,14 +379,16 @@ export function ResidentDrawerMenu({ isVisible, onClose }: ResidentDrawerMenuPro
                 </View>
               )}
             </View>
+          </ScrollView>
 
-            <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+          <View style={styles.logoutContainer}>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
               <View style={styles.menuItemContent}>
-                <LogOut size={20} color="#0891b2" />
-                <Text style={styles.menuItemText}>Déconnexion</Text>
+                <LogOut size={20} color="#ffffff" />
+                <Text style={styles.logoutText}>Déconnexion</Text>
               </View>
             </TouchableOpacity>
-          </ScrollView>
+          </View>
         </View>
       </Animated.View>
     </>
@@ -404,6 +504,30 @@ const styles = StyleSheet.create({
   subMenuText: {
     fontSize: 14,
     color: '#475569',
+  },
+  logoutContainer: {
+    paddingTop: 20,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+  },
+  logoutButton: {
+    backgroundColor: '#dc2626',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  profileImageStyle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
   },
 });
 

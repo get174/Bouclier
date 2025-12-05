@@ -31,20 +31,25 @@ router.post('/', async (req, res) => {
       service: 'gmail',
       auth: {
         user: 'gate.tshibanda@gmail.com',
-        pass: 'anzzyopbazbuyhgo'
+        pass: 'pbpulnvcpjfboqyx'
       }
     });
 
- await transporter.sendMail({
-      from: 'Bouclier SARL ',
+    const mailOptions = {
+      from: 'client@bouclier.com',
       to: user.email,
       subject: 'Votre OTP',
-      text:  `Voici votre code de connexion: ${otp}`
-    });
-res.json({ success: true });
+      text: `Voici votre code de connexion: ${otp}`
+    };
+
+    console.log('Sending email to:', user.email);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully:', info.messageId);
+
+    res.json({ success: true });
   } catch (err) {
-    console.error(err);
-	res.status(500).json({ success: false, message: "Erreur lors de l’envoi de l’OTP" });
+    console.error('Error sending OTP email:', err);
+    res.status(500).json({ success: false, message: "Erreur lors de l’envoi de l’OTP", error: err.message });
   }
 });
 

@@ -7,4 +7,4 @@ const apartmentSchema = new mongoose.Schema({
   description: { type: String }
 });
 
-module.exports = mongoose.model('Apartment', apartmentSchema, 'Apartments');
+module.exports = mongoose.model('Apartment', apartmentSchema, 'apartments');
