@@ -15,6 +15,7 @@ interface UserData {
   blockId?: string;
   appartementId?: string;
   role?: string;
+  profileImage?: string;
 }
 
 class AuthService {
@@ -152,6 +153,7 @@ class AuthService {
       blockId: updates.blockId ?? currentData?.blockId,
       appartementId: updates.appartementId ?? currentData?.appartementId,
       role: updates.role ?? currentData?.role,
+      profileImage: updates.profileImage ?? currentData?.profileImage,
     };
 
     await this.storeUserData(updatedData);

@@ -138,7 +138,7 @@ export function ResidentDrawerMenu({ isVisible, onClose }: ResidentDrawerMenuPro
               return;
             }
             const result = await ImagePicker.launchCameraAsync({
-              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              mediaTypes: 'images',
               allowsEditing: true,
               aspect: [1, 1],
               quality: 0.8,
@@ -157,7 +157,7 @@ export function ResidentDrawerMenu({ isVisible, onClose }: ResidentDrawerMenuPro
               return;
             }
             const result = await ImagePicker.launchImageLibraryAsync({
-              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              mediaTypes: 'images',
               allowsEditing: true,
               aspect: [1, 1],
               quality: 0.8,
@@ -174,6 +174,9 @@ export function ResidentDrawerMenu({ isVisible, onClose }: ResidentDrawerMenuPro
   const uploadProfileImage = async (uri: string) => {
     try {
       const headers = await authService.getAuthenticatedHeaders();
+      // Remove Content-Type from headers when using FormData
+      const { 'Content-Type': _, ...uploadHeaders } = headers;
+
       const formData = new FormData();
       formData.append('profileImage', {
         uri,
@@ -184,25 +187,35 @@ export function ResidentDrawerMenu({ isVisible, onClose }: ResidentDrawerMenuPro
       formData.append('fullName', fullName);
       formData.append('role', 'resident'); // Assuming resident role
 
+      console.log('Uploading to:', `${API_BASE_URL}/api/update-profile`);
+      console.log('FormData contents:', formData);
+
       const response = await fetch(`${API_BASE_URL}/api/update-profile`, {
         method: 'POST',
-        headers: {
-          ...headers,
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: uploadHeaders,
         body: formData,
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
       if (response.ok) {
         const data = await response.json();
+        console.log('Upload success:', data);
         setProfileImageUri(`${API_BASE_URL}/${data.profileImage}`);
         Alert.alert('Succès', 'Photo de profil mise à jour avec succès.');
       } else {
-        Alert.alert('Erreur', 'Échec de la mise à jour de la photo de profil.');
+        const errorText = await response.text();
+        console.error('Upload failed:', response.status, errorText);
+        Alert.alert('Erreur', `Échec de la mise à jour: ${response.status} - ${errorText}`);
       }
     } catch (error) {
       console.error('Error uploading profile image:', error);
-      Alert.alert('Erreur', 'Une erreur s\'est produite lors du téléchargement.');
+      if (error instanceof TypeError && error.message.includes('Network request failed')) {
+        Alert.alert('Erreur réseau', 'Vérifiez votre connexion internet et l\'adresse du serveur.');
+      } else {
+        Alert.alert('Erreur', `Une erreur s\'est produite: ${error.message}`);
+      }
     }
   };
 

@@ -43,7 +43,8 @@ router.get('/profile', authenticateToken, validateUserExists, async (req, res) =
         buildingId: user.buildingId,
         blockId: user.blockId,
         appartementId: user.appartementId,
-        isTemporary: user.isTemporary
+        isTemporary: user.isTemporary,
+        profileImage: user.profileImage
       }
     });
   } catch (error) {
